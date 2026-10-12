@@ -280,3 +280,15 @@ Before relevant milestones: identify reviewer, three syllabus topics, pilot orga
 | 3:15–4:00 | Actual findings/limitations; future uploads, sharing, wider coverage. |
 
 Use clearly labelled sample data if evaluation has not occurred; do not invent impact evidence.
+
+## Examination scope refinement — 2026-10-12
+
+Owner requested examination-aware models: JAMB is the MVP examination, with others such as SSCE reserved for future releases. This explicitly refines the existing topic-based feed and M2 content hierarchy; it does not authorize additional milestones or examinations in the MVP.
+
+- Examination → Subject → Topic → Learning unit version. Biology is unique per examination, not globally.
+- Existing subjects/content migrate to JAMB, preserving record identities, text, questions, publication status, and review history.
+- Admin identifies each subject/topic's examination and supports examination filtering. Published/withdrawn content cannot be reassigned to another examination through subject/topic saves.
+- JAMB is initially active. Other examination records default to inactive; no SSCE lessons are seeded.
+- M3 student APIs must expose examination identity and restrict availability to active examinations and published content. M4 selection must clearly identify JAMB Biology. These student features remain unimplemented.
+
+Acceptance for this model increment: JAMB Biology and SSCE Biology can coexist; duplicate Biology within one examination is rejected; every subject requires an examination; existing lessons retain their data under JAMB; seed commands target JAMB; tests verify migration, filtering, and history protection. Future examinations require their own reviewed syllabus/content before activation.

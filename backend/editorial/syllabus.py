@@ -1,0 +1,7 @@
+"""Narrow seed mapping to JAMB's official syllabus; not full curriculum coverage."""
+JAMB_BIOLOGY_URL = "https://ibass.jamb.gov.ng/assets/uploads/Biology.pdf"
+CELL_TOPIC = "Variety of organisms: Living organisms"
+CELL_OBJECTIVE = "Compare and contrast the structure of plant and animal cells."
+CELL_LOCATOR = "Section A; topic 1(b); objective iv"
+LEGACY_TOPIC = "Cells (demo; mapping awaits reviewer)"
+LEGACY_OBJECTIVE = "Compare selected plant and animal cell structures and relate them to function (provisional; reviewer must map to JAMB objective)."
