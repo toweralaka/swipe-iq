@@ -1,0 +1,14 @@
+wip/
+# Local configuration and generated files
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.sqlite3-*
+node_modules/
+.expo/
+dist/
+coverage/
