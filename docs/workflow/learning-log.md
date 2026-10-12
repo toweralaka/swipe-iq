@@ -35,3 +35,11 @@ A name such as Biology does not identify its exam or syllabus. Making Examinatio
 A separate migration first adds a nullable relationship, assigns existing subjects to JAMB, then makes the relationship required. This preserves existing lessons instead of resetting the database or rewriting an applied migration. Migration tests verify old data survives; comparison of local editorial rows confirms preservation in this workspace.
 
 Put a relationship in one place and follow it: a lesson's examination comes from its topic's subject. Repeating the examination on every lesson would allow contradictory values. Model preparation and a phone selector are separate increments, verified independently.
+
+## Milestone 3 — distinguish code verification from service/device acceptance
+
+Authentication crosses email, server, Android link handling, and secure device storage. Build the rules locally first: invitation checks, short-lived single-use tokens, revocable sessions, and publication permissions. Tests deliberately exercise expiry, replay, deactivation, failed storage, and offline logout, because these failures must never look like successful sign-in or sign-out.
+
+Keep web links and token exchange separate: email scanners can safely open a help page, while an explicit app confirmation performs a POST. Hash server credentials and keep local test emails out of Git and logs. Document provider/domain/signing configuration without inventing delivered emails or device results.
+
+A prepared app config and successful Android bundle do not establish verified App Links. Record the physical phone checklist separately and leave acceptance pending until the actual external setup and device check are done. This distinction applies to any future app that depends on external services.

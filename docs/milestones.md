@@ -7,7 +7,8 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | 0 — Approved baseline | Documentation prepared; see evidence below. Reviewer/topic dependencies remain open. |
 | 1 — Foundation | Implemented on feat/foundation; desktop checks passed; owner confirmed phone connection. |
 | 2 — Editorial content and media | Implementation and automated checks complete on feat/editorial-content; human content/media acceptance pending. |
-| 3–9 | Not started; separately authorized in sequence. |
+| 3 — Email login and student API | Implemented on feat/student-access; desktop checks passed; external configuration and installed-phone acceptance pending. |
+| 4–9 | Not started; separately authorized in sequence. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -110,3 +111,35 @@ Owner authorized examination-aware models while retaining JAMB as the only MVP e
 Migration 0002 applied locally. Compared every pre-existing editorial table row using its original columns before/after: all preserved, including lesson identities and publication/review data; existing subjects assigned to JAMB. Passed 34 backend tests, including old-schema migration, exam separation, required/unique relationships, protected deletion, publication history, seed scope, and admin labels. Django system check and migration drift check pass.
 
 Updated approved-plan addendum, requirements, architecture, README, editorial instructions, and learning log. No mobile changes, student selector/API, commit, push, or later milestone implementation. M2 human acceptance remains open as recorded above.
+
+## Milestone 3 — Email login and student API
+
+Owner requested the next milestone after committing M2. Work is isolated on feat/student-access, based on the existing M2 commit; the owner's unfinished AGENTS.md edit is preserved. This authorizes M3 code work, not a claim that M2 human content/media acceptance is complete. M4 is not started.
+
+Objective: invited candidates request a short-lived email link, explicitly confirm sign-in in the phone app, and receive revocable access to published content. The phone lesson feed remains M4.
+
+Implemented:
+
+- Invitation admin; random 15-minute login tokens stored only as hashes; conditional single-use exchange; unusable candidate passwords; hashed 30-day sessions; logout, expiry, and immediate invitation/account deactivation checks.
+- Database fixed-window address/IP throttling, generic invited/unknown responses, no token in API URLs, and safe generic delivery-error logging. Development email uses an ignored private file outbox.
+- Read-only paginated examinations/subjects/topics/units and authenticated media. Active exams and latest published versions only; no draft files, questions, answer keys, or staff review metadata.
+- Expo Router home/confirmation/connection routes, SecureStore session lifecycle, explicit confirmation, recovery messages, and a development-only local-link paste path. No sign-out success is reported when server revocation fails offline.
+- Android App Links intent configuration gated by an actual hostname, configurable association endpoint, static installation/help fallback, and EAS development/preview profiles. No domain/provider/account provisioning, email send to a real candidate, cloud build, or deployment performed.
+- Local accounts migration applied without altering editorial content. Environment examples, API contract, device guide, README, architecture/decision record, and learning log updated.
+
+Verification:
+
+- All 53 backend tests pass (34 existing plus 19 access/content scenarios). Django system check and migration drift check pass.
+- All 14 mobile tests pass, including restored/expired sessions, offline logout, storage-failure cleanup, untrusted links, and normal launch. TypeScript and ESLint pass.
+- Expo dependency alignment passes after updating within SDK 57 to Expo 57.0.28 and aligning React DOM/animation peers. Final Android bundle export passes.
+- npm reports 28 dependency advisories (10 moderate, 18 high). They remain unresolved; no forced SDK downgrade or clean-audit claim. Node module auto-detection warning is non-failing. Physical Android behavior is not inferred from bundle/tests.
+
+Acceptance still pending:
+
+- Owner-selected domain/email service and sender configuration; HTTPS API reachable from phone; signing certificate and matching association document; installed development/preview build.
+- Real email → installed app, cold/warm App Links, persisted sign-in, recovery/logout, and help-page acceptance on the phone, recorded using [authentication setup](authentication-setup.md).
+- M2 reviewer approval and real permitted multimedia sample acceptance remain open. No content was auto-published.
+
+Next owner action: follow the local-outbox walkthrough for a reversible login check, then provide domain/email choices and record the installed-phone checks. Stop before M4 until owner approval. No commit, push, merge, or deployment authorized by this implementation request.
+
+Final M3 desktop checkpoint: clean npm ci succeeded from the updated lockfile; TypeScript, ESLint, all 14 mobile helper/lifecycle tests, and Android export passed again after that clean install. Local documentation links (28 checked), source whitespace, secret-pattern checks, and private outbox/environment/database/build exclusions pass. No real-device or remote CI result is inferred.
