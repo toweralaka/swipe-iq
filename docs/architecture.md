@@ -23,3 +23,11 @@ Text precedes optional media; no autoplay; transcripts/captions support learning
 ## Deployment gate
 
 Before Milestone 8: verify PostgreSQL, HTTPS, persistent storage, email delivery, Android build, logs without secrets, and backup restoration. Domain/email setup is needed earlier for Milestone 3 device acceptance. Providers and budget remain unselected.
+
+## Examination and subject hierarchy
+
+Content follows Examination → Subject → Topic → Learning unit version → Cards/questions. A subject name is unique within its examination: JAMB Biology and future SSCE Biology are separate subjects with their own topics and syllabus mappings. Store the examination once on Subject; versions inherit it through their topic, avoiding contradictory examination fields.
+
+Examination has a stable code, display name, and active flag. Migration 0002 assigns existing subjects to JAMB without replacing lessons or review history. JAMB is active; newly created examinations default to inactive. This flag is configuration for future student APIs and selectors; neither exists yet. Those APIs must filter active examinations and published content on the server.
+
+Admin shows examination-qualified subjects/topics and an examination column/filter for lesson versions. Subjects and topics used by published or withdrawn lessons cannot be moved to another examination through model saves. Create separate curriculum records instead.

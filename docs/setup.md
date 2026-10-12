@@ -84,3 +84,7 @@ Android export verifies JavaScript bundling, not an installed app or phone netwo
 .env files, virtual environments, SQLite files, node_modules, .expo, and dist are ignored. Example files contain placeholders. Local DEBUG/HTTP are for development; hosted HTTPS, secrets, PostgreSQL, email, and media storage come in later milestones. The health endpoint proves liveness only, not database readiness.
 
 Milestone 1 does not include accounts, content, quizzes, likes, or challenges. Reviewer/topic choices remain deferred to content planning.
+
+## Milestone 2: staff editorial setup
+
+After applying migrations, follow [editorial workflow](content/editorial-workflow.md) for seed_demo, interactive createsuperuser, draft editing, media review, publication, and replacement/withdrawal. Private uploads stay outside Git. Human-reviewed sample content is a separate acceptance gate.

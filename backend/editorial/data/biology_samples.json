@@ -1,0 +1,227 @@
+[
+  {
+    "key": "sample-membrane-bouncer",
+    "title": "Cell membrane: the bouncer with a guest list",
+    "objective": "Explain how the cell membrane controls movement of substances and distinguish it from the cell wall.",
+    "cards": [
+      "The cell membrane is the bouncer at Club Cell: ‘You can enter… you need a transporter… you cannot just stroll in!’ Both plant and animal cells have one.",
+      "Science behind the joke: the membrane is selectively permeable. Its lipid bilayer and proteins regulate movement of substances. Some cross directly; others need transport proteins. It has no brain or actual guest list.",
+      "Memory hook: MEMbrane MANages movement. Do not confuse it with a plant cell wall: the wall mainly supports and protects; the membrane regulates exchange."
+    ],
+    "questions": [
+      [
+        "Which structure regulates exchange in both plant and animal cells?",
+        [
+          "Cell wall",
+          "Cell membrane",
+          "Chloroplast",
+          "Nucleolus"
+        ],
+        "b",
+        "Both have a selectively permeable membrane; animal cells lack a cell wall."
+      ],
+      [
+        "Selectively permeable means the membrane…",
+        [
+          "lets every substance pass equally",
+          "blocks all substances",
+          "allows some substances through more readily than others",
+          "chooses using a brain"
+        ],
+        "c",
+        "Permeability depends on substance properties and available transport pathways, not conscious choice."
+      ],
+      [
+        "A plant cell already has a wall. Why also have a membrane?",
+        [
+          "To regulate exchange with its surroundings",
+          "To replace its DNA",
+          "To make sunlight",
+          "To turn it into an animal cell"
+        ],
+        "a",
+        "A wall provides support, while the membrane controls exchange."
+      ]
+    ]
+  },
+  {
+    "key": "sample-wall-fence",
+    "title": "Cell wall: a fence is not your security guard",
+    "objective": "Distinguish the plant cell wall from the cell membrane by location and function.",
+    "cards": [
+      "A plant cell has a compound fence AND a gatekeeper. The wall says, ‘I hold the shape.’ The membrane says, ‘I manage what passes.’ Animal cells skipped the fence; they still have the membrane.",
+      "The plant cell wall lies outside the membrane and contains cellulose. It provides support and helps resist excessive expansion when water enters. It is porous; it is not the main selectively permeable barrier.",
+      "Memory hook: WALL = support; MEMBRANE = exchange. A fence and a gatekeeper have different jobs. This is an analogy, not a description of tiny people inside cells."
+    ],
+    "questions": [
+      [
+        "Where is the plant cell wall relative to the membrane?",
+        [
+          "Inside the nucleus",
+          "Outside the membrane",
+          "Inside a mitochondrion",
+          "Only around chloroplasts"
+        ],
+        "b",
+        "The wall surrounds the cell outside its membrane."
+      ],
+      [
+        "Which material is a major component of plant cell walls?",
+        [
+          "Glycogen",
+          "Haemoglobin",
+          "Cellulose",
+          "Chlorophyll"
+        ],
+        "c",
+        "Cellulose is a structural carbohydrate in plant cell walls."
+      ],
+      [
+        "Which statement is correct?",
+        [
+          "Animal cells have cellulose walls",
+          "The wall replaces the membrane",
+          "Both structures have identical roles",
+          "Plant cells have both a wall and a membrane"
+        ],
+        "d",
+        "Plant cells need both structural support and regulated exchange."
+      ]
+    ]
+  },
+  {
+    "key": "sample-chloroplast-chef",
+    "title": "Chloroplast: the solar chef does not cook in every room",
+    "objective": "Relate chloroplasts to photosynthesis and avoid assuming every plant cell contains them.",
+    "cards": [
+      "Meet Chef Chloroplast: ‘Sunlight is my energy supply; carbon dioxide and water are ingredients.’ No gas cylinder required. Photosynthesis uses light energy to help build sugars.",
+      "Chlorophyll absorbs light in chloroplasts. Photosynthetic plant cells, such as many leaf cells, contain them. Many root cells do not: being a plant cell does not automatically come with a solar kitchen.",
+      "Memory hook: CHLOROplast catches light. Do not confuse it with a mitochondrion: a green plant still needs cellular respiration. ‘Solar chef’ is a memory aid; the real process uses chemical reactions."
+    ],
+    "questions": [
+      [
+        "The main function associated with chloroplasts is…",
+        [
+          "photosynthesis",
+          "storing urine",
+          "pumping blood",
+          "digesting bones"
+        ],
+        "a",
+        "Chloroplasts carry out photosynthesis."
+      ],
+      [
+        "Which statement avoids a common misconception?",
+        [
+          "Every plant cell has chloroplasts",
+          "Animal cells usually contain chloroplasts",
+          "Many root cells lack chloroplasts",
+          "Chloroplasts replace all mitochondria"
+        ],
+        "c",
+        "Many non-photosynthetic plant cells lack chloroplasts."
+      ],
+      [
+        "Which pigment absorbs light for photosynthesis?",
+        [
+          "Haemoglobin",
+          "Melanin",
+          "Insulin",
+          "Chlorophyll"
+        ],
+        "d",
+        "Chlorophyll absorbs light energy used in photosynthesis."
+      ]
+    ]
+  },
+  {
+    "key": "sample-mitochondria-recharge",
+    "title": "Mitochondria: your cell needs a recharge, not a power bank",
+    "objective": "Relate mitochondria to aerobic respiration and recognise their presence in plant and animal cells.",
+    "cards": [
+      "Your cell cannot say, ‘My battery is 1%; lend me your charger.’ Mitochondria help convert energy from food into ATP through aerobic respiration. ATP powers many cellular processes.",
+      "Typical plant AND animal cells have mitochondria. Plants make sugars by photosynthesis, but also respire. A leaf is not exempt from the energy bill just because it owns solar equipment.",
+      "Memory hook: MITOchondria help make ATP. They convert energy; they do not create it from nothing. Also, not every ATP-producing reaction happens there: glycolysis occurs in the cytoplasm."
+    ],
+    "questions": [
+      [
+        "Which molecule supplies readily usable energy for many cellular processes?",
+        [
+          "Cellulose",
+          "ATP",
+          "Chlorophyll",
+          "Starch only"
+        ],
+        "b",
+        "ATP transfers usable chemical energy to many cellular processes."
+      ],
+      [
+        "Which statement about plant cells is correct?",
+        [
+          "They never respire",
+          "They contain only chloroplasts",
+          "They cannot use ATP",
+          "Typical plant cells also contain mitochondria"
+        ],
+        "d",
+        "Plants carry out respiration as well as photosynthesis."
+      ],
+      [
+        "Which statement is accurate?",
+        [
+          "Mitochondria create energy from nothing",
+          "All respiration reactions occur in the nucleus",
+          "Glycolysis occurs in the cytoplasm",
+          "Animal cells use chloroplasts for respiration"
+        ],
+        "c",
+        "Glycolysis is the cytoplasmic stage; mitochondria perform later stages of aerobic respiration."
+      ]
+    ]
+  },
+  {
+    "key": "sample-nucleus-head-office",
+    "title": "Nucleus: head office has instructions, not a tiny manager",
+    "objective": "Describe the nucleus as the location of most DNA in typical plant and animal cells and relate it to cell activity.",
+    "cards": [
+      "Club Cell has a head office: the nucleus keeps most of the DNA instructions. It does not wear a suit or shout ‘Who approved this?’ Cell activities are influenced by which genes are expressed.",
+      "A nuclear envelope surrounds the nucleus in typical plant and animal cells. DNA instructions guide protein production; ribosomes build proteins. Head office keeps instructions—it is not the factory floor.",
+      "Memory hook: NUCLEUS = instruction store. ‘Most DNA’ matters: mitochondria, and chloroplasts when present, have some DNA too. The analogy is useful, but there is no thinking manager inside a cell."
+    ],
+    "questions": [
+      [
+        "Where is most DNA located in a typical plant or animal cell?",
+        [
+          "Cell wall",
+          "Central vacuole",
+          "Nucleus",
+          "Cell membrane"
+        ],
+        "c",
+        "Most DNA is in the nucleus of a typical eukaryotic cell."
+      ],
+      [
+        "Which structures directly assemble proteins?",
+        [
+          "Ribosomes",
+          "Cell walls",
+          "Chlorophyll molecules",
+          "Vacuoles only"
+        ],
+        "a",
+        "Ribosomes assemble proteins using genetic information carried by messenger RNA."
+      ],
+      [
+        "Why say the nucleus contains most rather than all cellular DNA?",
+        [
+          "DNA also floats in the cell wall",
+          "Mitochondria have some DNA too",
+          "ATP is another name for DNA",
+          "Only animal cells contain DNA"
+        ],
+        "b",
+        "Mitochondria contain DNA; chloroplasts also contain DNA when present."
+      ]
+    ]
+  }
+]

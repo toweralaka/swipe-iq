@@ -12,3 +12,6 @@ node_modules/
 .expo/
 dist/
 coverage/
+
+# Private local editorial uploads
+private_media/

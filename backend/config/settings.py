@@ -18,7 +18,7 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv(
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
-    "rest_framework", "health",
+    "rest_framework", "health", "editorial",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -57,3 +57,9 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
 }
+
+# Private editorial uploads. No public development MEDIA_URL route.
+MEDIA_ROOT = BASE_DIR / "private_media"
+MEDIA_URL = "/private-media/"
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5_000_000
+DATA_UPLOAD_MAX_MEMORY_SIZE = 6_000_000

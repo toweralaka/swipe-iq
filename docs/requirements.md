@@ -21,3 +21,7 @@ Six units across three syllabus-aligned topics; all four formats represented acr
 ## Open dependencies
 
 Reviewer and topic shortlist unconfirmed. Recruitment, ages, email availability, and participation arrangements require validation. Do not claim verified curriculum coverage or measured impact before evidence exists.
+
+## Examination scope refinement — 2026-10-12
+
+Owner confirmed JAMB is the MVP examination; other examinations follow later. Subjects belong to an examination, so future student selection must identify **JAMB Biology**, rather than an ambiguous Biology. SSCE content, syllabus mapping, and student availability are outside this increment. See the [approved plan addendum](implementation-plan.md#examination-scope-refinement--2026-10-12).

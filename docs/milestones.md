@@ -6,7 +6,8 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | --- | --- |
 | 0 — Approved baseline | Documentation prepared; see evidence below. Reviewer/topic dependencies remain open. |
 | 1 — Foundation | Implemented on feat/foundation; desktop checks passed; owner confirmed phone connection. |
-| 2–9 | Not started; separately authorized in sequence. |
+| 2 — Editorial content and media | Implementation and automated checks complete on feat/editorial-content; human content/media acceptance pending. |
+| 3–9 | Not started; separately authorized in sequence. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -77,3 +78,35 @@ Clean npm ci succeeded from package-lock.json. TypeScript, ESLint, and all five 
 ### Owner acceptance
 
 Owner reports: “phone connection has been verified”. Recorded as user-reported evidence, not a new agent-run device check. Commit and PR creation authorized; no merge authorization.
+
+## Milestone 2 implementation evidence
+
+- Owner authorized M2; branch feat/editorial-content starts from the committed foundation. No merge, commit, push, or PR requested for this milestone.
+- Implemented subjects/topics, stable learning units, immutable version history, ordered cards, four-choice questions, and private media assets with authorship/attribution.
+- Staff admin provides draft editing, private media preview, explicit permission-checked publish/withdraw actions, and replacement drafts with reset review confirmations and retained card identities.
+- Publication checks all six human-review confirmations, saved references/review notes, 1–3 cards, exactly three questions, and media validation/confirmation. Published history cannot be edited or bulk-deleted through supported application paths.
+- Added initial migration and applied it locally. Added repeatable seed_demo command; two runs created then preserved two unreviewed sample units (five cards, six questions). No sample was published, no media fabricated, no credentials created.
+- Added drafting prompt, human review checklist, editorial walkthrough, and media preparation guide under docs/content/.
+- Passed: 22 backend tests including existing health tests, admin action success/failure, permissions, missing files, publication freezing/replacements, supported format attachment, constraints and repeatable seeding. Django system check and migration drift check pass.
+- Media limits: actual size/basic extension/signature validated; declared duration/height and actual playback/caption timing are human-verified, not measured by a decoder. This is documented; metadata confirmation cannot substitute for a real review.
+- Human acceptance OPEN: reviewer nomination, confirmation of sample objective/JAMB mapping, real permitted image/audio/video samples, and recorded approval across all four formats. Provisional cell-comparison drafts are not approved teaching material.
+- No student API, mobile playback, AI integration, or later-milestone features added. No mobile changes; backend checks are the relevant automated scope.
+- Do not mark M2 fully accepted or advance to M3 until human review evidence and owner approval are provided.
+
+Final M2 documentation checks passed: local Markdown links, tracked whitespace, Django system check, migration drift, and private upload/environment ignore rules. Admin upload round-trip test also passed; no real media or secrets were committed.
+
+### Official syllabus mapping
+
+Owner selected the official JAMB Biology syllabus. Seed defaults now map to Section A / topic 1(b) / objective iv (plant/animal cell comparison); see content/syllabus-source.md for provenance and retrieval limitations. Added safe opt-in alignment for untouched legacy seed metadata, preserving editor changes and publication history. All 25 backend tests pass; no migration drift. Content and media still require human review; no publication occurred.
+
+### Five humorous sample units
+
+Owner requested five Biology sample contents. Added seed_sample_content and original text/quiz data covering membrane, wall, chloroplast, mitochondria, and nucleus within the existing cell-structure syllabus topic. Seeded five additional unreviewed drafts locally (15 cards, 15 questions); rerun preserved them. All 27 backend tests pass, including review gating and non-overwrite checks. No publication, media generation, commit, or push. These are candidate sample material, not a change to pilot unit/topic limits.
+
+### Examination-aware content refinement
+
+Owner authorized examination-aware models while retaining JAMB as the only MVP exam. Added Examination and a required Subject relationship, uniqueness per examination, admin labels/filters, JAMB-specific seeds, and protections against reassigning published/withdrawn subjects/topics. Other exams default to inactive; no SSCE data was seeded.
+
+Migration 0002 applied locally. Compared every pre-existing editorial table row using its original columns before/after: all preserved, including lesson identities and publication/review data; existing subjects assigned to JAMB. Passed 34 backend tests, including old-schema migration, exam separation, required/unique relationships, protected deletion, publication history, seed scope, and admin labels. Django system check and migration drift check pass.
+
+Updated approved-plan addendum, requirements, architecture, README, editorial instructions, and learning log. No mobile changes, student selector/API, commit, push, or later milestone implementation. M2 human acceptance remains open as recorded above.
