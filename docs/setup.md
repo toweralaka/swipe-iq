@@ -88,3 +88,7 @@ Milestone 1 does not include accounts, content, quizzes, likes, or challenges. R
 ## Milestone 2: staff editorial setup
 
 After applying migrations, follow [editorial workflow](content/editorial-workflow.md) for seed_demo, interactive createsuperuser, draft editing, media review, publication, and replacement/withdrawal. Private uploads stay outside Git. Human-reviewed sample content is a separate acceptance gate.
+
+## Milestone 3: invited email login
+
+Follow [authentication setup](authentication-setup.md) for invitation administration, private local email messages, development login, domain/SMTP settings, installed Android builds, and real-device acceptance. Mobile navigation now uses Expo Router; start Expo Go explicitly with npm.cmd start -- --go, or an installed development build with npm.cmd start -- --dev-client. The student API contract is in [student access](api/student-access.md).

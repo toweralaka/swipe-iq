@@ -23,6 +23,10 @@
     },
     "platforms": [
       "android"
+    ],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
     ]
   }
 }

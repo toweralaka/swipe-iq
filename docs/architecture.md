@@ -28,6 +28,14 @@ Before Milestone 8: verify PostgreSQL, HTTPS, persistent storage, email delivery
 
 Content follows Examination → Subject → Topic → Learning unit version → Cards/questions. A subject name is unique within its examination: JAMB Biology and future SSCE Biology are separate subjects with their own topics and syllabus mappings. Store the examination once on Subject; versions inherit it through their topic, avoiding contradictory examination fields.
 
-Examination has a stable code, display name, and active flag. Migration 0002 assigns existing subjects to JAMB without replacing lessons or review history. JAMB is active; newly created examinations default to inactive. This flag is configuration for future student APIs and selectors; neither exists yet. Those APIs must filter active examinations and published content on the server.
+Examination has a stable code, display name, and active flag. Migration 0002 assigns existing subjects to JAMB without replacing lessons or review history. JAMB is active; newly created examinations default to inactive. The M3 student API filters active examinations and published content on the server. The phone selector remains M4.
 
 Admin shows examination-qualified subjects/topics and an examination column/filter for lesson versions. Subjects and topics used by published or withdrawn lessons cannot be moved to another examination through model saves. Create separate curriculum records instead.
+
+## Milestone 3 access implementation
+
+The accounts app owns invitations, hashed single-use tokens, revocable hashed sessions, database rate buckets, and staff invitation/session administration. Student endpoints explicitly use bearer-session authentication; Django staff cookies do not grant student API access. The editorial student API exposes only the latest published version per unit from active examinations, with examination-qualified subjects and private media access. Questions and review metadata are excluded.
+
+Expo Router supplies home/login/connection routes. SecureStore holds the credential; account identity is verified against the server on restore. Reading an incoming fragment link only presents confirmation. Backend /login is a static fallback; configured Android association data is served at /.well-known/assetlinks.json. No domain, email provider, signing identity, cloud build, or physical Android acceptance has been assumed.
+
+See [API contract](api/student-access.md) and [authentication setup](authentication-setup.md). Local streaming establishes access control; media playback, caching, CDN delivery, and quiz routes remain later increments.

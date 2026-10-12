@@ -15,3 +15,6 @@ coverage/
 
 # Private local editorial uploads
 private_media/
+
+# Local passwordless email outbox (contains single-use secrets)
+.local-email/

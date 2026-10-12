@@ -1,6 +1,6 @@
 # swipe-iq
 
-Educational revision for Nigerian JAMB Biology candidates. The foundation provides a Django REST API health endpoint and an Expo Android connection screen. Milestone 2 adds staff-only editorial drafts, media, review, publication, and immutable versions. Student learning screens/APIs remain planned.
+Educational revision for Nigerian JAMB Biology candidates. The foundation provides a Django REST API health endpoint and an Expo Android connection screen. Milestone 2 adds staff-only editorial drafts, media, review, publication, and immutable versions. Milestone 3 adds invited email-link login and a protected student content API. The phone lesson feed remains planned.
 
 ## Start here
 
@@ -9,14 +9,16 @@ Educational revision for Nigerian JAMB Biology candidates. The foundation provid
 - [Milestone status and remaining checks](docs/milestones.md)
 - [Architecture](docs/architecture.md)
 - [Staff editorial workflow](docs/content/editorial-workflow.md)
+- [Email login and physical Android checks](docs/authentication-setup.md)
+- [Student API contract](docs/api/student-access.md)
 
 Use Python 3.14 and Node 24. Follow the setup guide for isolated dependencies, environment configuration, and checks. No cloud account is needed for Milestone 1.
 
 ## Why published content is not showing on the phone yet
 
-The current phone app only checks its connection to the backend. It does not yet have student login or a lesson feed. Publishing saves an approved lesson in the database; it does not add a phone screen to display it.
+The phone app now supports invited email-link sign-in and a connection check. It does not yet have a lesson feed. Publishing makes a reviewed lesson available through the protected student API; the phone needs Milestone 4 screens to display it.
 
-The planned student API/login is Milestone 3. The phone feed and media display are Milestone 4. Until those are implemented, students cannot read published lessons in the app, even when Check connection succeeds.
+The student API/login code is Milestone 3; real email-to-installed-app acceptance remains pending. The phone feed and media display are Milestone 4. Students cannot browse published lessons in the app until those screens are implemented.
 
 ## Admin: prepare and publish a lesson
 
@@ -63,7 +65,7 @@ Complete the [initial setup](docs/setup.md) first. The commands below use PowerS
 
 10. Confirm the lesson's status is Published. If publication fails, read the displayed message, fix the missing requirements, save, and try again. A normal Save leaves a lesson as a draft.
 
-The lesson is now approved in the database and ready for the future student feed. It is not currently visible to students on the phone. For corrections, create a replacement draft and review it again; published versions are locked. See the [full editorial walkthrough](docs/content/editorial-workflow.md).
+The lesson is now approved in the database and available to signed-in candidates through the student API, ready for the future phone feed. It is not currently visible to students on the phone. For corrections, create a replacement draft and review it again; published versions are locked. See the [full editorial walkthrough](docs/content/editorial-workflow.md).
 
 ## Phone: what you can access now
 
@@ -73,7 +75,7 @@ The lesson is now approved in the database and ready for the future student feed
 
    ~~~powershell
    Set-Location mobile
-   npm.cmd start
+   npm.cmd start -- --go
    ~~~
 
 4. Open Expo Go on the phone and scan the terminal QR code. Follow the [setup guide](docs/setup.md) if an SDK/version message appears.
@@ -83,14 +85,12 @@ For a **staff-only preview on a phone**, open http://YOUR_COMPUTER_WIFI_IPV4:800
 
 Changing Wi-Fi settings or republishing a lesson will not make a student feed appear in the current app.
 
-## Student phone access: planned steps, not available yet
+## Student sign-in: Milestone 3
 
-After Milestones 3 and 4 are implemented and verified, the intended steps are:
+1. Ask the admin to add your email under Accounts → Invitations.
+2. Open Swipe-IQ and enter that email, then tap Send login link.
+3. For local development, follow the [private email-outbox walkthrough](docs/authentication-setup.md#local-development-without-an-email-provider). A development-only paste option lets you test before a real email provider is configured.
+4. With the configured domain, real email, and installed Android build, open the email link on the phone and tap Confirm sign-in. This physical-device route still needs acceptance testing.
+5. The app shows your signed-in email. You can sign out and restore your session after restarting the app.
 
-1. Open Swipe-IQ on the Android phone.
-2. Enter an invited email address and request a login link.
-3. Open that link on the phone and confirm sign-in.
-4. Choose JAMB, then Biology and a topic, then browse published lessons. Other examinations are planned for future releases.
-5. Tap to load or play optional media; text remains available without loading media.
-
-Quiz-taking arrives in Milestone 5. These instructions describe the agreed future flow; they are not a working student access route today.
+The **student lesson feed is still planned**: in Milestone 4, choose JAMB, then Biology and a topic, and browse published lessons with optional media. Quiz-taking arrives in Milestone 5.

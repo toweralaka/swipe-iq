@@ -9,7 +9,7 @@ From backend/ in PowerShell:
     .\.venv\Scripts\python.exe manage.py createsuperuser
     .\.venv\Scripts\python.exe manage.py runserver
 
-Choose your own staff password interactively; none is seeded. Open http://127.0.0.1:8000/admin/. Keep the account private. Student passwordless login is a later milestone; staff admin uses Django's staff login.
+Choose your own staff password interactively; none is seeded. Open http://127.0.0.1:8000/admin/. Keep the account private. Student passwordless login is implemented in M3 with real-device acceptance pending; staff admin uses Django's separate staff login.
 
 seed_demo is repeatable and preserves existing edits. It creates two unreviewed cell-comparison learning-unit drafts aligned to the [official JAMB mapping](syllabus-source.md), five cards, and six questions. It does not create accounts, upload media, check review boxes, or publish. These examples are not a validated topic shortlist or approved lessons.
 
@@ -28,7 +28,7 @@ For local evaluation, a superuser can perform all steps. For regular use, give e
 7. Complete [review checklist](review-checklist.md), six confirmations, verified source details, and review notes. Save changes before running publication actions.
 8. In the learning-unit-version list, select the draft and run Publish selected reviewed drafts. The service revalidates the complete saved unit, records the acting reviewer/time, and freezes the version.
 
-A normal save never publishes. Failed publication leaves the draft unchanged and displays the reason. No student content API or public media route exists in this milestone. Staff can view drafts through admin only.
+A normal save never publishes. Failed publication leaves the draft unchanged and displays the reason. M2 added no student content API. M3 now provides an authenticated published-content API and media route; drafts remain staff-only. See [student API](../api/student-access.md).
 
 ## Corrections and withdrawal
 
@@ -53,4 +53,4 @@ Use [five humorous Biology samples](sample-content.md) for more realistic text-b
 
 Migration and seed commands establish JAMB. In admin, Examinations lists its name/code/active flag. Subjects require an examination; Biology under JAMB is distinct from Biology under another exam. Topics belong to these exam-specific subjects. Lesson versions show their examination in the list and can be filtered by it.
 
-Only JAMB is in the MVP. For a future examination, create a separate inactive examination, its subjects, and topics; do not move existing JAMB subjects/topics. Activation will control future student availability once the student API is implemented. Do not treat the active flag as publication or as a working phone selector today.
+Only JAMB is in the MVP. For a future examination, create a separate inactive examination, its subjects, and topics; do not move existing JAMB subjects/topics. Activation will control future student availability through the M3 student API. Do not treat the active flag as publication or as a working phone selector today.
