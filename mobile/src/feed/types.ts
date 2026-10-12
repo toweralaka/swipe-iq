@@ -40,3 +40,5 @@ export function nextPath(url: string, base: string, currentPath: string): string
   for (const [key, value] of filters) if (key !== 'page' && target.searchParams.get(key) !== value) throw new Error('The next page belongs to a different list.');
   return target.pathname.slice('/api/v1/'.length) + target.search;
 }
+
+export function feedPageFrom(value:unknown):ListPage<Lesson>&{mix:string}{const v=record(value);if(typeof v.mix!=='string'||!(/^[0-9a-f]{32}$/.test(v.mix)))throw new Error('The feed mix could not be read. Refresh and try again.');return {...pageFrom(value,lessonFrom),mix:v.mix};}

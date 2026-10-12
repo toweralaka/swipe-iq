@@ -5,7 +5,7 @@ import { FeedRepository } from '../src/feed/repository.ts';
 import { ApiError, NetworkError } from '../src/api/student.ts';
 import { nextPath, lessonFrom, pageFrom, examFrom } from '../src/feed/types.ts';
 import { downloadMedia } from '../src/feed/download.ts';
-import { feedPath, subjectIds, postsFrom, mergePosts } from '../src/feed/mix.ts';
+import { feedPath, subjectIds, postsFrom, mergePosts, withDares } from '../src/feed/mix.ts';
 import { captionsFrom, captionAt } from '../src/feed/captions.ts';
 function disk() { const data = new Map(); return { data, async read(k) { return data.get(k) ?? null; }, async write(k,v) { data.set(k,v); }, async remove(k) { data.delete(k); }, async clear() { data.clear(); }, uri(k) { return 'file:///' + k; }, async files() { return [...data.keys()]; }, async size(k) { return data.get(k)?.length ?? 0; } }; }
 const bytes = size => new Uint8Array(size).fill(65);
@@ -89,6 +89,25 @@ test('video captions use cue times and are readable without markup', () => {
   const next = await cache.activate('another-account'); const other = new FeedRepository(cache,next,async()=>lesson,async()=>({bytes:bytes(3),extension:'png'})); assert.deepEqual(await other.selection(),[]); await assert.rejects(cache.read(lease,'selection:subjects'),CacheChanged);
  });
  test('cached mixed feeds can be opened offline and are purged when a version is withdrawn', async () => {
-  let offline = false; const { repository,cache,lease } = await setup(async path => { if(offline) throw new NetworkError('offline'); return path === 'units/availability/' ? { available_ids: [] } : {count:1,next:null,results:[lesson]}; });
+  let offline = false; const { repository,cache,lease } = await setup(async path => { if(offline) throw new NetworkError('offline'); return path === 'units/availability/' ? { available_ids: [] } : {count:1,next:null,mix:'a'.repeat(32),results:[lesson]}; });
   const path = feedPath([1]); await repository.feed(path); offline = true; assert.equal((await repository.feed(path)).offline,true); offline = false; await repository.recheckSavedLessons(); assert.deepEqual(await cache.keys(lease,'json:'),[]);
  });
+
+test('dares are optional entries with varied safe spacing and selected-subject quizzes',()=>{
+ const posts=Array.from({length:80},(_,i)=>({key:String(i),lesson:{...lesson,id:i+1},card:lesson.cards[0]}));
+ const entries=withDares(posts,'a'.repeat(32));const dareIndices=entries.flatMap((e,i)=>e.kind==='dare'?[i]:[]);
+ assert.ok(dareIndices[0]>=3&&dareIndices[0]<=7);assert.ok(dareIndices.length>3);
+ for(let i=1;i<dareIndices.length;i++){const between=dareIndices[i]-dareIndices[i-1]-1;assert.ok(between>=5&&between<=9);}
+ assert.deepEqual(entries.filter(e=>e.kind==='post').map(e=>e.post.key),posts.map(p=>p.key));
+ assert.ok(entries.filter(e=>e.kind==='dare').every(e=>e.post.lesson.topic.subject.id===1));
+ assert.deepEqual(withDares(posts.slice(0,20),'a'.repeat(32)),entries.slice(0,withDares(posts.slice(0,20),'a'.repeat(32)).length));
+ assert.notDeepEqual(withDares(posts,'b'.repeat(32)).map(e=>e.key),entries.map(e=>e.key));
+ assert.deepEqual(withDares([],'a'.repeat(32)),[]);
+});
+test('saved feed keeps its mix and cursor pages readable offline',async()=>{
+ let offline=false;const mix='c'.repeat(32);const next='https://api.example.com/api/v1/feed/?subjects=1&mix='+mix+'&cursor=abc';
+ const {repository}=await setup(async path=>{if(offline)throw new NetworkError('offline');return {count:2,mix,next:path.includes('cursor=')?null:next,results:[{...lesson,id:path.includes('cursor=')?2:1}]};});
+ const first=feedPath([1]);await repository.feed(first);const second=nextPath(next,'https://api.example.com',first);await repository.feed(second);offline=true;
+ const saved=await repository.feed(first);assert.equal(saved.value.mix,mix);assert.equal(saved.value.next,next);assert.equal((await repository.feed(second)).value.results[0].id,2);
+ assert.throws(()=>nextPath(next.replace(mix,'d'.repeat(32)),'https://api.example.com',first+'&mix='+mix));
+});

@@ -29,3 +29,13 @@ Owner confirmed JAMB is the MVP examination; other examinations follow later. Su
 ## Owner-requested swipe flow
 
 After sign-in, choose subjects using checkboxes labelled with their exam, then continue straight to full-screen posts. Swipe up to advance. Search stays within chosen subjects. Read more keeps full text and media alternatives available. Subject choices belong to this account's phone cache and can be changed or cleared. See the latest [approved plan addendum](implementation-plan.md#owner-approved-feed-change--2026-10-12).
+
+## Milestone 5 implementation
+
+Quick play now offers three questions for a published post. The server scores all three, then returns explanations. Identical retries count once. Results and history belong only to the signed-in candidate. Completion means submitting a quiz; first-play percentages exclude practice, including corrected versions of the same post. Choices survive reopening on the same account until submission succeeds or sign-out clears them. Submission and history need a connection. See [phone acceptance steps](quiz-phone-guide.md); device acceptance remains pending.
+
+## Approved entertainment-first update
+
+Users scroll a random subject-based mix for fun; there is no required learning sequence. New publications have exactly one content card; carousels are deferred. Older content stays intact. Optional in-feed dare cards appear at varied intervals, can be skipped, and are independent of finishing a post. Fixed post-ending quiz buttons are removed. Current accepted dares are solo plays; friend challenges remain Milestone 7 and are labelled as coming later. Settings → My progress keeps unfinished dares and optional play history reachable.
+
+Acceptance: one-card publishing, stable shuffled cursor pages, subject/search boundaries, no server write on skipping, no answer keys before submission, unchanged retry/account protections, saved mixed pages offline, and pause when media leaves view for a dare. Physical-phone checks remain open. See the latest [approved-plan addendum](implementation-plan.md#owner-approved-entertainment-first-update--2026-10-12).

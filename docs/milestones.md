@@ -9,7 +9,8 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | 2 — Editorial content and media | Implementation and automated checks complete on feat/editorial-content; human content/media acceptance pending. |
 | 3 — Email login and student API | Implemented on feat/student-access; desktop checks passed; external configuration and installed-phone acceptance pending. |
 | 4 — Feed, playback, and caching | Implemented on feat/feed-playback-cache; desktop checks passed; phone playback, slow/offline, and large-text checks pending. |
-| 5–9 | Not started; each needs separate approval. |
+| 5 — Quizzes and progress | Implemented on feat/quizzes-progress; desktop checks passed; physical-phone acceptance pending. |
+| 6–9 | Not started; each needs separate approval. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -197,3 +198,43 @@ The owner asked for a playful subject picker and swipe feed, with search. Record
 Verification: 57 backend tests and 34 mobile helper tests pass; Django system and migration checks, TypeScript, and ESLint pass. Android export passes; its first run alongside all other checks exceeded the command time limit, and a separate run completed successfully. New tests cover subject/exam boundaries, search, pagination, saved choices, cache isolation, and removal of withdrawn feed pages. No new packages were added by this redesign. Existing dependency advisories remain unresolved.
 
 Phone acceptance is still pending: sign-in → selection → feed, one-post swiping, subject changes, search/empty results, small-screen/larger-text access, playback pause including overlays, and slow/offline/reconnect checks. The design is intended to feel more inviting; no measured engagement gain is claimed. No sample was auto-published, and no commit, push, deployment, or later milestone was performed.
+
+## Milestone 5 — Quizzes and private progress
+
+Owner authorized the next milestone. Branch: feat/quizzes-progress, based on the existing Milestone 4 branch. Earlier human content/media review and real-email/phone acceptance remain open; this request does not establish that those checks passed.
+
+Implemented:
+
+- Separate quiz API exposes three questions and choices without keys. Submission validates the published version and all three question IDs, then scores on the server.
+- Completed attempts use an account-bound submission UUID. Identical retries return the same result; conflicting reuse returns 409. Database constraints and a transaction protect numbering and duplicate submissions; database contention returns a safe retry response.
+- Results keep original question/key/explanation and exam/subject context. New submissions for withdrawn/replaced/inactive content are rejected, while previously accepted results and identical retries remain available to their owner.
+- Quick play on the last feed card and inside Read more, score/explanation screen, repeat practice, and private progress/history under Settings. First-play percentage excludes repeated practice, including replacement versions of a stable post.
+- Choices and submission ID save before sending. At most 20 unfinished quizzes live in a separate account-bound document store with two alternating copies. Lost replies keep the same ID and fixed answers. No background submissions or offline write synchronization. Cache clearing keeps unfinished answers; sign-out/session rejection/account changes remove them.
+- Account-bound request checks prevent an old screen from sending answers under a newly signed-in account. Screens and in-memory scored results reset across account changes. Late failures from an old credential cannot clear a newer credential.
+- Added the [phone walkthrough](quiz-phone-guide.md), [API contract](api/quiz-progress.md), README steps, architecture notes, and reusable learning notes in plain language.
+
+Verification:
+
+- All 71 backend tests pass, including 14 new quiz scenarios: hidden keys, server scoring, invalid answers, safe retries/conflicts, repeat metrics, privacy, withdrawal/replacement history, inactive exams, constraints, read-only admin, and retryable database errors.
+- All 45 mobile helper tests pass, including saved-choice restart, lost reply/retry, failed storage, account isolation, parser filtering, draft limits, interrupted two-copy writes, and account-switch request binding. TypeScript and ESLint pass.
+- Learning migration applied locally; compared every editorial row before and after and all were preserved. System check, migration drift, and Python dependency checks pass.
+- Expo dependency alignment and final Android export pass. No packages added. Existing dependency advisories remain unresolved; no new audit or clean-audit claim. Node module auto-detection warnings remain non-failing.
+- Documentation links and Git whitespace checks pass. No secrets, local database, or generated export files are tracked.
+
+Still open: physical Android quiz/choice persistence, lost-reply recovery, private history after restart/account changes, large text, and withdrawal checks in the phone guide. Native file behavior has not been established by pure helper tests. Actual overlapping PostgreSQL submissions need verification before hosting; simulated database-busy tests do not prove PostgreSQL concurrency. Remote CI has not been run for these uncommitted changes.
+
+No content was published. No commit, push, deployment, likes, or challenges performed. Stop for owner review before Milestone 6.
+
+### Owner-approved entertainment-first refinement
+
+Implemented on feat/quizzes-progress, preserving the uncommitted Milestone 5 work. The owner approved random standalone posts, one content card per new publication, no carousel yet, and occasional optional in-feed dares. The approved-plan addendum supersedes earlier fixed post-to-quiz and completion-target assumptions. This is a refinement of the feed/quiz work, not implementation of Milestones 6 or 7.
+
+- Backend: one-card publication and admin limit; new sample/demo drafts use one card; seed reruns retain existing content. No schema migration or local content rewrite.
+- Feed: a new server mix for fresh first requests, stable hashed ordering, cursor pages, publication cutoff, and existing subject/search/publication controls. Offline pages retain their mix and next cursor. Late requests from an earlier refresh cannot append to a new mix.
+- Phone: ordinary posts have no quiz button; optional dare cards appear after a variable number of content items and can be swiped past or skipped explicitly. Existing solo quizzes open on acceptance. Friend challenges are honestly labelled as coming later.
+- Progress: posts tried and voluntary plays; unfinished dares can be resumed without finding the same feed position. Existing attempt records, scoring, hidden keys, saved choices, retry IDs, and account boundaries remain in place.
+- Updated README, approved plan, user/admin/drafting guides, API notes, architecture, requirements, and learning log.
+
+Verification: 75 backend tests and 48 mobile helper tests pass, with TypeScript, ESLint, system/migration/dependency checks, and final Android export. Tests include one-card publication, preservation on seed reruns, mix/cursor stability, withdrawal while paging, optional dare spacing, offline mix/cursor recovery, and unfinished-dare access. Expo dependency alignment passes; no packages added. Existing dependency advisories remain unresolved.
+
+Physical-phone acceptance remains open: varied dare placement, skip/accept, refresh/load-more, pause when scrolling onto a dare, saved dare after restart, small-screen/large-text controls, search, offline reads, and reconnect. Remote CI not run. No content auto-published, no commit/push/deployment, and no two-person challenge claim.

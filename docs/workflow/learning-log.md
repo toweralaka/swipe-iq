@@ -65,3 +65,19 @@ The server still decides which posts are published and which exam a subject belo
 Submitting search once saves requests compared with searching on every keystroke. Full-screen cards need a separate full-text view because long explanations and large phone text cannot always fit. Keep the short view inviting while preserving the complete explanation and media controls.
 
 Tests can check filtering and saved copies. Only real candidates can tell us whether the new flow is more fun. Record their feedback rather than claiming an engagement improvement from the redesign alone.
+
+## Milestone 5: scores, retries, and honest progress
+
+We calculate scores on the server because a phone request can be changed. We also give each submission a stable ID. If the connection drops after the server records a play, retrying that ID returns the same result. A database constraint protects this rule even if requests overlap. A repeat play gets a fresh ID.
+
+We save a result snapshot so later editorial corrections cannot silently rewrite what a candidate answered. A stable post ID links corrected versions for completion and first-play counts. Practice stays visible without raising the original first-play score. These numbers describe app activity, not proven exam improvement.
+
+Unfinished answers deserve different handling from disposable feed copies. They use separate document files and two alternating saves. Tests deliberately interrupt writes and replies; they check whether choices survive and whether a retry keeps its ID. Native phone behavior and PostgreSQL concurrency still require their own checks. The repeatable workflow is to identify the failure that matters, encode the rule, test that failure, and document what remains unverified.
+
+## Entertainment-first scope correction
+
+The owner clarified the experience before further milestone work: funny standalone posts, random subject-based scrolling, one content card today, and occasional optional in-feed dares. We recorded this as an approved change instead of silently treating earlier lesson/completion rules as still current.
+
+A random sort on every page can repeat or skip posts. We use one mix token for the entire scroll, a cursor for the last position, and a publication cutoff. A fresh online feed gets a new mix; offline reads reuse the saved one. Tests check stable pages, withdrawal between pages, and saved cursor pages.
+
+Removing a quiz button also removes a recovery path. We added unfinished dares to private progress so saved answers remain reachable. One-card publishing applies to new publications; existing cards, IDs, reviews, and results stay intact. Seed changes affect only newly created drafts. This is how a product decision becomes concrete rules, compatibility handling, tests, and updated instructions. Fun and incidental learning still need observation with real users; passing tests cannot establish them.

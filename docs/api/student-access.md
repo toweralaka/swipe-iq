@@ -54,6 +54,12 @@ GET /api/v1/feed/?subjects=1,2&q=cells requires a student session. subjects is r
 
 Optional q accepts up to 120 characters and 10 words. Each word must match a title, aim, card text, topic, or subject name; matching ignores case for the MVP's English text. This is simple word matching, not AI search or recommendations.
 
-The response is a 10-unit page with count, next, previous, and results. Each result has the same safe fields/cards as the unit-detail route. The phone turns each card into one full-screen post. Media bytes still require a separate request. Questions, answer keys, drafts, and review notes remain hidden. Newer publications come first; card order stays intact. Follow next only on the same server, feed path, subjects, and search.
+The response is a cursor page of up to 10 post versions with count, next, mix, and results. Each result has the same safe fields/cards as the unit-detail route. New publications have one content card. The phone turns every card into a full-screen post to preserve access to older multi-card content. Media bytes still require a separate request. Questions, answer keys, drafts, and review notes remain hidden. Each first request gets a random mix token. Stable seeded ordering keeps that mix while paging; a publication-time cutoff excludes later publications until refresh. Follow the returned cursor instead of page numbers. The next link includes mix and before; preserve them. Optional mix is 32 lowercase hex characters and before is an ISO timestamp. Cursor paging avoids skipping an item when a preceding publication is withdrawn. Follow next only on the same server, feed path, subjects, and search.
 
 Invalid filters return 400, missing/rejected sign-in returns 401, and no matching content returns an empty 200 page. These feed pages use the same phone cache and reconnect checks as unit details. Search history is not stored as a separate account feature.
+
+## Quizzes and progress
+
+Milestone 5 adds separate authenticated quiz, submission, result, and progress routes. Feed and lesson endpoints still omit questions and keys. See the [quiz API](quiz-progress.md) for payloads, private history, and safe retries.
+
+Dares are inserted on the phone between content items, based on the returned mix token. They do not expose questions/keys, submit attempts, or start a two-person challenge merely by being displayed. Skipping a dare performs no server write. Search remains within the chosen subjects; dares draw from that returned content. The first-page cache uses the subject/search path and stores its returned mix and next cursor so offline reopening can reuse the last viewed mix. Old cached feed formats need one connected refresh after this update.

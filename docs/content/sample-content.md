@@ -4,7 +4,7 @@ Run from backend/:
 
     .\.venv\Scripts\python.exe manage.py seed_sample_content
 
-The command creates five original AI-assisted text-based units, each with three cards and three four-choice questions with answer explanations. Existing content is preserved on reruns. They are additional sample drafts, not an expansion of the approved six-unit pilot scope; the reviewer may select/refine suitable units later.
+The command creates five original AI-assisted text-based units, each with one standalone content card and three four-choice questions with answer explanations. Existing content is preserved on reruns. They are additional sample drafts, not an expansion of the approved six-unit pilot scope; the reviewer may select/refine suitable units later.
 
 | Concept | Memory aid |
 | --- | --- |
@@ -19,3 +19,9 @@ All remain UNREVIEWED drafts with review boxes unset, no attached media, and no 
 Curriculum: official JAMB Biology, Section A / topic 1(b), supporting cell identification/function/comparison objectives ii–iv. See [source provenance](syllabus-source.md). Candidate teaching reference: [OpenStax Biology 2e, 4.3](https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells); not a claim of JAMB textbook endorsement or human review. Record checked teaching references in the admin during review.
 
 Source data: backend/editorial/data/biology_samples.json. Text cards can later supply scripts or storyboards for separately prepared and reviewed media. This command does not generate image/audio/video files.
+
+## One-content-post update
+
+New publications require one card. It can include text and one optional media attachment. Carousels are deferred. Keep humour and explanations understandable without reading another post first. Questions supply optional in-feed dares, not a compulsory quiz after the post.
+
+Seed reruns preserve existing content, including older multi-card drafts. They do not convert or publish those drafts. For an older multi-card draft, a human must prepare one standalone card before publishing. For published material, use a reviewed replacement draft; never alter the original history.

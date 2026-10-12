@@ -25,8 +25,8 @@ def publish(version_id, reviewer):
         raise ValidationError("Record syllabus, verified reference, and human review notes.")
     cards = list(version.cards.all())
     questions = list(version.questions.all())
-    if not 1 <= len(cards) <= 3 or [c.position for c in cards] != list(range(1, len(cards) + 1)):
-        raise ValidationError("A unit needs 1–3 cards numbered consecutively from 1.")
+    if len(cards) != 1 or cards[0].position != 1:
+        raise ValidationError("A post needs exactly one content card, numbered 1. Carousels are future work.")
     if len(questions) != 3 or [q.position for q in questions] != [1, 2, 3]:
         raise ValidationError("A unit needs exactly three questions numbered 1, 2, 3.")
     for child in cards + questions:

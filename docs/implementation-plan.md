@@ -308,3 +308,20 @@ Acceptance criteria:
 - JAMB Biology remains the MVP content scope. No extra exams, user uploads, likes, quizzes, sharing, recommendations, or automatic publication are added by this change.
 
 The feed uses reviewed card text already in the database. A new layout does not establish that jokes are funny or learning improves; review and pilot feedback still decide that.
+
+## Owner-approved entertainment-first update — 2026-10-12
+
+The owner clarified that Swipe-IQ is for fun, relaxing scrolling, with Biology woven into entertaining content. This update supersedes earlier lesson-sequence, fixed post-to-quiz, multi-card publication, and completion-target assumptions. The owner explicitly authorized implementation after choosing in-feed dares and one content item per post.
+
+Acceptance criteria:
+
+- Show random standalone posts within the candidate's chosen subjects/examinations. No required topic order or teaching sequence. A fresh online opening/refresh gets a new mix; loading more keeps that mix stable. A small collection can still produce the same visible order by chance.
+- Newly published posts have exactly one card, optionally with one media attachment. Multiple content items/carousels are deferred. Keep the card relationship for future expansion. Existing multi-card content, IDs, review history, and attempts must not be rewritten or deleted automatically; legacy cards remain individual feed items.
+- Optional dare cards appear inside the feed, never as interrupting pop-ups or as a required ending to a post. Dismiss by swiping or Keep scrolling. Vary spacing: first after 3–7 content items, then after 5–9; do not insert dares into an empty feed. These are testable initial defaults, not evidence of an ideal frequency.
+- Remove quiz buttons from post endings and Read more. Accepting a dare opens the existing three-question solo quiz. Resuming unfinished dares remains available through Settings → My progress. No timer, automatic submission, or requirement to play.
+- Two-person friend challenges remain Milestone 7. Clearly label them as coming later; do not show a working challenge invitation/code or opponent result before that functionality exists.
+- Keep server scoring, hidden keys, retry safety, private attempt history, saved answers, media controls, and account isolation. Progress describes optional plays/posts tried, not required lesson completion. The API's existing completed_units field remains a compatibility count of posts with an accepted quiz.
+- New sample drafts contain one standalone content card. Seed reruns preserve every existing draft/publication and human edit. Existing multi-card drafts require a human to reduce a replacement/new draft to one card before publishing.
+- Maintain subject/search boundaries, publication removal, no autoplay, offscreen/background pause, data saver, bounded cache, and offline labels. Saved feed pages retain their mix and next cursor. Withdrawal during paging must not cause offset-based skipping.
+
+Evaluation changes: remove the proposed 60% started-unit-to-quiz completion target as a product success requirement. Measure voluntary dare acceptance separately from return use and enjoyment; optional quiz use must not gate access. Learning/retention remains a hypothesis tested with agreed pilot questions; incidental learning is an intended effect, not an established fact. Likes and two-person challenges remain separately authorized milestones.

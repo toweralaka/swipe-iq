@@ -65,3 +65,21 @@ Subject picks live in the same account's bounded phone cache. Feed pages also st
 The screen uses a paged FlatList to keep a few posts mounted at a time. Read more supplies complete text and alternatives in a scrollable view. Small screens and larger text can open media there; only the visible media area can play. Data saver and publication rules remain the same.
 
 API references checked: [Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/), [React Native FlatList](https://reactnative.dev/docs/flatlist), and [Django queries](https://docs.djangoproject.com/en/5.2/topics/db/queries/).
+
+## Milestone 5: quizzes and private progress
+
+The learning Django app stores completed quiz attempts. The server checks each submitted question against a published version and calculates the score. A submission UUID makes a retry return the same result instead of creating another play. Each attempt keeps its original question text, explanations, and subject/exam context. Replacement versions share a stable unit, so repeat practice cannot raise first-play scores.
+
+The phone has Quick play, result, and progress routes. Unfinished choices live in small account-bound document files, separate from the viewed-content cache. Two alternating copies keep the last complete save if a write is interrupted. The phone saves choices and the submission ID before sending, and never submits automatically in the background. Sign-out and account changes clear unfinished answers. Completed history stays on the server. Keys are only displayed after submission and are not stored in the feed cache.
+
+See the [API contract](api/quiz-progress.md) and [phone guide](quiz-phone-guide.md). SQLite is still for local development; PostgreSQL concurrency checks remain required before hosting.
+
+## Random posts and optional in-feed dares
+
+New publications contain one card. The relationship still supports multiple records for preserved history and a future carousel, but the publishing service and admin enforce today's limit. New sample drafts combine their standalone text into one card; seed reruns preserve existing drafts and publications.
+
+The feed API generates a mix token and sorts published versions by a hash of that token and version ID. This gives a shuffled order without running a fresh random sort on every page. Cursor paging follows the last item's position, and a publication-time cutoff keeps later content out until refresh. Subject/exam and search filters still apply. This is a simple mix, not personal recommendations.
+
+The phone inserts optional dare entries using the mix token. Their positions remain stable when another page arrives. The first appears after 3–7 content items, later ones after 5–9. Skipping sends no request; accepting opens the current solo quiz. Friend challenges are visibly deferred. Post-ending quiz buttons are removed. Progress lists local unfinished dares so saved choices remain reachable without finding an old random feed position.
+
+The first subject/search page is cached at its usual path with its returned mix and next cursor; later cursor pages use their exact paths. Offline reopening therefore reuses the saved mix. Refresh clears displayed entries before fetching a new mix; requests started under an older feed generation cannot append into it. Existing cached pages from before the format change need a connected refresh. Native swipe, media pause, large-text, and recovery checks remain in the phone guides.

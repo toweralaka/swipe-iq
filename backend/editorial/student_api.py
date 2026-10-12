@@ -1,9 +1,14 @@
+import uuid
+from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
+from django.utils import timezone
+from django.db.models import CharField, Value
+from django.db.models.functions import MD5, Cast, Concat
 import mimetypes
 from django.db.models import OuterRef, Subquery, Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, serializers
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, CursorPagination
 from rest_framework.response import Response
 from accounts.views import StudentView
 from .models import Card, Examination, LearningUnitVersion, MediaAsset, Subject, Topic
@@ -140,6 +145,8 @@ class UnitAvailability(StudentView):
 
 
 class FeedInput(serializers.Serializer):
+    mix = serializers.RegexField(r"^[0-9a-f]{32}$", required=False)
+    before = serializers.DateTimeField(required=False)
     subjects = serializers.CharField(max_length=220)
     q = serializers.CharField(max_length=120, required=False, allow_blank=True, default="")
 
@@ -155,8 +162,27 @@ class FeedInput(serializers.Serializer):
         return sorted(set(int(part) for part in parts))
 
 
-class FeedPagination(StudentPagination):
+class FeedPagination(CursorPagination):
     page_size = 10
+    ordering = ("shuffle_key", "pk")
+
+    def paginate_queryset(self, queryset, request, view=None):
+        self.mix = view.mix
+        self.before = view.before.isoformat()
+        self.count = queryset.count()
+        return super().paginate_queryset(queryset, request, view)
+
+    def mix_link(self, url):
+        if not url:
+            return None
+        parts = urlsplit(url)
+        params = dict(parse_qsl(parts.query))
+        params.update(mix=self.mix, before=self.before)
+        return urlunsplit(parts._replace(query=urlencode(params)))
+
+    def get_paginated_response(self, data):
+        return Response({"count": self.count, "next": self.mix_link(self.get_next_link()),
+                         "mix": self.mix, "results": data})
 
 
 class FeedList(StudentList):
@@ -167,9 +193,11 @@ class FeedList(StudentList):
         inputs = FeedInput(data=self.request.query_params)
         inputs.is_valid(raise_exception=True)
         data = inputs.validated_data
-        query = available_versions().filter(topic__subject_id__in=data["subjects"])
+        self.mix = data.get("mix", uuid.uuid4().hex)
+        self.before = min(data.get("before", timezone.now()), timezone.now())
+        query = available_versions().filter(topic__subject_id__in=data["subjects"], published_at__lte=self.before)
         for term in data["q"].split():
             query = query.filter(Q(title__icontains=term) | Q(objective__icontains=term)
                 | Q(cards__text__icontains=term) | Q(topic__name__icontains=term)
                 | Q(topic__subject__name__icontains=term))
-        return query.select_related("unit").prefetch_related("cards__media").distinct().order_by("-published_at", "-pk")
+        return query.annotate(shuffle_key=MD5(Concat(Value(self.mix), Cast("pk", CharField())))).select_related("unit").prefetch_related("cards__media").distinct().order_by("shuffle_key", "pk")
