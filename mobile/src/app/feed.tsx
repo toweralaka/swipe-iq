@@ -1,0 +1,62 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, Modal, Pressable, ScrollView, Text, TextInput, View, useWindowDimensions, type ViewToken } from 'react-native';
+import { Redirect, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSession } from '../auth/session';
+import { useFeed } from '../feed/context';
+import { MediaCard } from '../feed/media';
+import { feedPath, mergePosts, postsFrom, subjectIds, type Post } from '../feed/mix';
+import { nextPath } from '../feed/types';
+import { apiBaseUrl } from '../api/student';
+import { Chip, look, palette } from '../feed/theme';
+const colours = ['#D8FA72', '#FFD6B8', '#CFC5FF', '#B8E9F0', '#FFD2E0'];
+export default function FeedScreen() {
+ const { subjects } = useLocalSearchParams<{ subjects: string }>(); const { candidate, ready } = useSession(); const { repository, revision, error } = useFeed();
+ const [query, setQuery] = useState(''); const [draft, setDraft] = useState(''); const [searching, setSearching] = useState(false); const [searchError, setSearchError] = useState('');
+ let ids: number[] = []; try { ids = subjectIds(subjects ?? ''); } catch { /* Invalid navigation returns to subject selection. */ }
+ if(ready && !candidate) return <Redirect href="/" />;
+ if(!ids.length) return <Redirect href="/subjects" />;
+ function search() { try { feedPath(ids,draft); setSearchError(''); setQuery(draft.trim()); setSearching(false); } catch(problem) { setSearchError(problem instanceof Error ? problem.message : 'Try a shorter search.'); } }
+ const path = feedPath(ids, query);
+ return <SafeAreaView style={{ flex: 1, backgroundColor: palette.dark }}>
+  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12 }}><View><Text style={{ color: palette.lime, fontSize: 23, fontWeight: '900', letterSpacing: -1 }}>swipe-iq ✳</Text><Text style={{ color: '#B9C7BE', fontSize: 12 }}>{query ? 'YOUR SEARCH' : 'YOUR DAILY DOSE OF AHA'}</Text></View><Chip label="Search ⌕" dark onPress={() => { setDraft(query); setSearchError(''); setSearching(true); }} /></View>
+  {query && <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 8, gap: 12 }}><Text numberOfLines={1} style={{ flex: 1, color: '#fff' }}>“{query}”</Text><Chip label="Clear" dark onPress={() => setQuery('')} /></View>}
+  {!repository ? <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>{error ? <Text style={{ color: '#fff' }}>{error}</Text> : <ActivityIndicator color={palette.lime} />}</View> : <Stream key={path + ':' + revision} path={path} obscured={searching} />}
+  <View style={{ flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center' }}><Text style={{ color: palette.lime, fontWeight: '800' }}>✦  Your mix</Text><Chip label="Subjects" dark onPress={() => router.replace('/subjects')} /><Chip label="Settings" dark onPress={() => router.push('/settings')} /></View>
+  <Modal visible={searching} animationType="slide" onRequestClose={() => setSearching(false)}><SafeAreaView style={look.screen}><View style={{ padding: 24, gap: 24 }}><Chip label="Close" onPress={() => setSearching(false)} /><Text style={look.headline}>Curious about{ '\n' }something?</Text><Text style={look.copy}>Search posts in your chosen subjects. Try “cells” or “energy”.</Text><TextInput accessibilityLabel="Search posts" autoFocus placeholder="What’s on your mind?" value={draft} onChangeText={setDraft} maxLength={120} returnKeyType="search" onSubmitEditing={search} style={{ backgroundColor: '#fff', borderRadius: 20, borderWidth: 1, borderColor: '#C8D0C2', padding: 20, fontSize: 20 }} />{!!searchError && <Text accessibilityLiveRegion="polite" style={look.copy}>{searchError}</Text>}<Pressable accessibilityRole="button" style={look.cta} onPress={search}><Text style={look.ctaText}>Find my next aha  ↗</Text></Pressable></View></SafeAreaView></Modal>
+ </SafeAreaView>;
+}
+function Stream({ path, obscured }: { path: string; obscured: boolean }) {
+ const { fontScale } = useWindowDimensions();
+ const [detailsOffset, setDetailsOffset] = useState(0); const [detailsViewport, setDetailsViewport] = useState(0); const [detailsFrame, setDetailsFrame] = useState({ y: 0, height: 0 });
+ const { repository, dataSaver } = useFeed(); const [posts, setPosts] = useState<Post[]>([]); const [next, setNext] = useState<string | null>(null); const [busy, setBusy] = useState(true); const [error, setError] = useState(''); const [offline, setOffline] = useState(false); const [saved, setSaved] = useState(true); const [height, setHeight] = useState(0); const [visible, setVisible] = useState(0); const [focused, setFocused] = useState(false); const [details, setDetails] = useState<Post | null>(null); const [attempt, setAttempt] = useState(0);
+ const loading = useRef(false); const alive = useRef(true);
+ useFocusEffect(useCallback(() => { setFocused(true); return () => setFocused(false); }, []));
+ const viewable = useCallback(({ viewableItems }: { viewableItems: ViewToken<Post>[] }) => { setVisible(viewableItems.find(item => item.isViewable)?.index ?? -1); }, []);
+ useEffect(() => {
+  let active = true; alive.current = true;
+  void repository!.feed(path).then(result => { if(active) { setPosts(postsFrom(result.value.results)); setNext(result.value.next); setOffline(result.offline); setSaved(result.saved); setBusy(false); setError(''); } }, problem => { if(active) { setError(problem.message); setBusy(false); } });
+  return () => { active = false; alive.current = false; };
+ }, [repository, path, attempt]);
+ function more() {
+  if(!next || busy || loading.current) return; loading.current = true; setBusy(true); setError('');
+  let target: string;
+  try { target = nextPath(next, apiBaseUrl(), path); } catch(problem) { setError(problem instanceof Error ? problem.message : 'Could not load more.'); setBusy(false); loading.current = false; return; }
+  void repository!.feed(target).then(result => { if(alive.current) { setPosts(old => mergePosts(old,postsFrom(result.value.results))); setNext(result.value.next); setOffline(old => old || result.offline); setSaved(result.saved); } }, problem => { if(alive.current) setError(problem.message); }).finally(() => { loading.current = false; if(alive.current) setBusy(false); });
+ }
+ function retry() { if(posts.length) more(); else { setBusy(true); setError(''); setAttempt(v => v + 1); } }
+ const mediaVisible = Math.min(detailsFrame.y + detailsFrame.height, detailsOffset + detailsViewport) - Math.max(detailsFrame.y, detailsOffset) > Math.min(detailsFrame.height, detailsViewport) * 0.5;
+ const openDetails = (post: Post) => { setDetailsOffset(0); setDetailsFrame({ y: 0, height: 0 }); setDetails(post); };
+ const ended = <View style={{ height: height || 400, padding: 32, gap: 20, justifyContent: 'center', alignItems: 'center' }}>
+  {busy ? <ActivityIndicator color={palette.lime} /> : <><Text style={{ color: palette.lime, fontSize: 46 }}>✳</Text><Text style={{ color: '#fff', textAlign: 'center', fontSize: 26, fontWeight: '800' }}>{error ? 'A little connection hiccup.' : posts.length ? 'You’re all caught up.' : path.includes('&q=') ? 'No match this time.' : 'Your mix is warming up.'}</Text><Text style={{ color: '#B9C7BE', textAlign: 'center', fontSize: 16, lineHeight: 24 }}>{error || (path.includes('&q=') ? 'Try another search or clear it to see your mix.' : posts.length ? 'Come back for fresh posts, or switch up your subjects.' : 'No published posts in these subjects yet. Ask the admin to add reviewed content.')}</Text><Chip label={error ? 'Try again' : 'Refresh'} onPress={() => { if(error) retry(); else { setBusy(true); setAttempt(v => v + 1); } }} /><Chip label="Change subjects" onPress={() => router.replace('/subjects')} /></>}
+ </View>;
+ return <View style={{ flex: 1 }} onLayout={event => setHeight(Math.round(event.nativeEvent.layout.height))}>
+  {height > 0 && (posts.length ? <FlatList key={height + ':' + attempt} data={posts} extraData={[visible,focused,obscured,details]} pagingEnabled decelerationRate="fast" showsVerticalScrollIndicator={false} initialNumToRender={2} maxToRenderPerBatch={3} windowSize={3} keyExtractor={post => post.key} getItemLayout={(_,index) => ({ length: height, offset: height * index, index })} onViewableItemsChanged={viewable} viewabilityConfig={{ itemVisiblePercentThreshold: 70 }} onEndReached={more} onEndReachedThreshold={0.5} ListFooterComponent={ended} renderItem={({ item, index }) => <View style={{ height, paddingHorizontal: 12, paddingVertical: 6 }}><View style={{ flex: 1, borderRadius: 30, backgroundColor: colours[index % colours.length], padding: height < 540 ? 20 : 26, overflow: 'hidden' }}>
+   <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}><Text numberOfLines={1} style={[look.eyebrow,{flex:1,color:palette.ink}]}>{item.lesson.topic.subject.name} ({item.lesson.topic.subject.examination.name})</Text><Text style={look.eyebrow}>{index + 1}</Text></View>
+   <View style={{ flex: 1, justifyContent: 'center', gap: 14, paddingVertical: 12 }}><Text numberOfLines={1} style={{ color: palette.ink, opacity: 0.6, fontSize: 12, fontWeight: '800', letterSpacing: 2 }}>{item.lesson.topic.name.toUpperCase()}</Text><Text numberOfLines={fontScale > 1.3 ? 1 : 2} style={{ color: palette.ink, fontSize: height < 540 ? 25 : 32, lineHeight: height < 540 ? 29 : 36, fontWeight: '900', letterSpacing: -1 }}>{item.lesson.title}</Text><Text numberOfLines={fontScale > 1.3 ? 2 : item.card.media ? (height < 540 ? 3 : 4) : height < 540 ? 7 : 10} style={{ color: palette.ink, fontSize: item.card.media ? 18 : height < 540 ? 23 : 28, lineHeight: item.card.media ? 25 : height < 540 ? 30 : 36, fontWeight: '600' }}>{item.card.text}</Text></View>
+   {item.card.media && (fontScale > 1.3 || height < 500 ? <Chip label={'Open ' + item.card.media.kind + ' · ' + Math.round(item.card.media.byte_size / 1000) + ' KB'} onPress={() => openDetails(item)} /> : <MediaCard media={item.card.media} version={item.lesson.id} active={focused && visible === index && !obscured && !details} compact />)}
+   <View style={{ gap: 8, paddingTop: 12 }}><View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}><Chip label="Read more ↗" onPress={() => openDetails(item)} /><Text style={{ color: palette.ink, fontSize: 12, fontWeight: '700' }}>{dataSaver ? 'DATA SAVER ON' : 'DATA SAVER OFF'}</Text></View><Text style={{ color: palette.ink, fontSize: 12 }}>{offline ? 'Offline · saved posts' : !saved ? 'Not saved · check phone space' : 'Swipe up for another aha ↑'}</Text></View>
+  </View></View>} /> : ended)}
+  <Modal visible={!!details} animationType="slide" onRequestClose={() => setDetails(null)}><SafeAreaView style={look.screen}><ScrollView onLayout={event => setDetailsViewport(event.nativeEvent.layout.height)} onScroll={event => setDetailsOffset(event.nativeEvent.contentOffset.y)} scrollEventThrottle={100} contentContainerStyle={{ padding: 24, gap: 24 }}><Chip label="Back to my mix" onPress={() => setDetails(null)} />{details && <><Text style={look.eyebrow}>{details.lesson.topic.subject.name} ({details.lesson.topic.subject.examination.name})</Text><Text style={look.headline}>{details.lesson.title}</Text><Text style={[look.copy,{fontSize:22,lineHeight:32,color:palette.ink}]}>{details.card.text}</Text>{details.card.media && <View onLayout={event => setDetailsFrame(event.nativeEvent.layout)}><MediaCard media={details.card.media} version={details.lesson.id} active={focused && !obscured && mediaVisible} /></View>}<Text style={look.eyebrow}>THE AHA</Text><Text style={look.copy}>{details.lesson.objective}</Text></>}</ScrollView></SafeAreaView></Modal>
+ </View>;
+}

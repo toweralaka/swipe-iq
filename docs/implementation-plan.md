@@ -292,3 +292,19 @@ Owner requested examination-aware models: JAMB is the MVP examination, with othe
 - M3 student APIs must expose examination identity and restrict availability to active examinations and published content. M4 selection must clearly identify JAMB Biology. These student features remain unimplemented.
 
 Acceptance for this model increment: JAMB Biology and SSCE Biology can coexist; duplicate Biology within one examination is rejected; every subject requires an examination; existing lessons retain their data under JAMB; seed commands target JAMB; tests verify migration, filtering, and history protection. Future examinations require their own reviewed syllabus/content before activation.
+
+## Owner-approved feed change — 2026-10-12
+
+The owner asked to replace the lesson-menu entry flow with a playful, full-screen feed and search. This updates the earlier topic-based entry flow within Milestone 4. Other milestone boundaries and publication rules stay in place.
+
+Acceptance criteria:
+
+- After sign-in, show subject checkboxes with the exam in parentheses, such as Biology (JAMB). Choose at least one subject, up to 20.
+- Continue straight into posts from those subjects. No exam/topic/lesson menu is required before scrolling.
+- Each post fills the feed area. Swiping up moves to the next post. Long text, transcripts, and sources remain available through Read more.
+- Search finds published content within the selected subjects. Empty results, connection failures, retry, loading, and the end of the feed have clear states.
+- Remember subject picks in this account's phone cache. Let users change them; clear them with cached content or sign-out. This is not a cross-device preference service.
+- Keep data saver on by default, user-started audio/video, playback pause when leaving a post, offline labels, publication checks, and the 100 MB cache limit.
+- JAMB Biology remains the MVP content scope. No extra exams, user uploads, likes, quizzes, sharing, recommendations, or automatic publication are added by this change.
+
+The feed uses reviewed card text already in the database. A new layout does not establish that jokes are funny or learning improves; review and pilot feedback still decide that.
