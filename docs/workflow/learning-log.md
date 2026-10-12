@@ -43,3 +43,25 @@ Authentication crosses email, server, Android link handling, and secure device s
 Keep web links and token exchange separate: email scanners can safely open a help page, while an explicit app confirmation performs a POST. Hash server credentials and keep local test emails out of Git and logs. Document provider/domain/signing configuration without inventing delivered emails or device results.
 
 A prepared app config and successful Android bundle do not establish verified App Links. Record the physical phone checklist separately and leave acceptance pending until the actual external setup and device check are done. This distinction applies to any future app that depends on external services.
+
+## Milestone 4 — test failure paths before calling a feed complete
+
+The phone screens use the same protected backend routes that were built in Milestone 3. This lets us add a usable feed without changing the review-and-publish workflow or exposing drafts.
+
+Keep three jobs separate: screens display lessons, the repository chooses between server and saved content, and the cache manages files and space. This gives each part a clear job and lets tests simulate lost connections and full storage. The same pattern works for a recipe app, field guide, or training app.
+
+A lost connection is different from a server refusing access. Only a network failure can use saved text; rejected sign-ins and missing lessons must stay rejected. Offline copies need a visible label because the phone cannot know about an admin's recent changes until it reconnects.
+
+Clear operations need to handle work already in progress. A generation number makes a download started before sign-out fail when it tries to save afterwards. Otherwise clearing files once would not be enough.
+
+Desktop checks can prove storage rules and request handling. They cannot prove sound stops when an Android app goes into the background or that video captions match speech on a real phone. Record those checks separately, use simple steps, and leave them pending until someone performs them.
+
+## Feed redesign — change the journey without weakening the rules
+
+The owner asked for subject picks and a playful swipe feed instead of a chain of lesson menus. We record that change as an addendum to the approved plan, then update the screens, API contract, tests, and phone guide together. That keeps the reason for the change visible without erasing the earlier decision.
+
+The server still decides which posts are published and which exam a subject belongs to. The phone changes how those safe results look. Search uses the same publication rules, so a prettier screen cannot accidentally make drafts public.
+
+Submitting search once saves requests compared with searching on every keystroke. Full-screen cards need a separate full-text view because long explanations and large phone text cannot always fit. Keep the short view inviting while preserving the complete explanation and media controls.
+
+Tests can check filtering and saved copies. Only real candidates can tell us whether the new flow is more fun. Record their feedback rather than claiming an engagement improvement from the redesign alone.

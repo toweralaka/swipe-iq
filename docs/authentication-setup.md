@@ -1,44 +1,79 @@
-# Email login and physical Android checks
+# Sign in with an email link
 
-Milestone 3 code supports local development and configurable Android App Links. Real email/domain/signing configuration and an installed build are required to complete device acceptance. M2 human teaching-content review remains separate.
+Students use a login link instead of a password. You can test this locally now. Opening real email links in an installed Android app also needs a domain, email service, and matching app build. Those phone checks are still pending.
 
 ## Local development without an email provider
 
-1. Follow [setup](setup.md), then run from backend/:
+The default setup saves test emails on your computer. It does not send them to an inbox.
 
-       .\.venv\Scripts\python.exe manage.py migrate
-       .\.venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
+1. Complete [setup](setup.md). From backend/, prepare the database and start the server:
 
-2. In the staff admin, open Accounts → Invitations → Add. Enter your test email address and leave active checked. No password or student staff access is needed. Do not add real pilot addresses to Git.
-3. Optionally set LOGIN_LINK_BASE_URL in your private backend/.env to http://YOUR_COMPUTER_WIFI_IPV4:8000/login. Restart Django. The default is localhost; local paste testing does not navigate to the link host.
-4. Open the phone app on the same Wi-Fi with EXPO_PUBLIC_API_URL pointing to your computer. Use npm.cmd start -- --go for the Expo Go route; restart with a cleared cache after switching to Router. Installed development builds can use npm.cmd start -- --dev-client.
-5. Enter the invited email and tap Send login link. The default development email backend saves the message to backend/.local-email/. It does not send a real email. Open the newest local message privately in your editor and copy its complete /login#token=... URL. Do not paste tokens into chat or screenshots.
-6. In a development app, tap Test a local login link, paste the URL, tap Read local link, then Confirm sign-in. Opening/reading a link alone must not sign you in. The home screen displays the authenticated email.
-7. Restart the app and verify the session restores; tap Sign out and verify the account disappears. If disconnected, sign-out must show an error and allow retry rather than claiming server revocation.
+   ~~~powershell
+   .\.venv\Scripts\python.exe manage.py migrate
+   .\.venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
+   ~~~
 
-This checks local API/session behavior. It does not establish real email delivery or verified HTTPS App Links. The student feed/examination selector remains M4. The existing Connection check screen remains available.
+2. Open http://127.0.0.1:8000/admin/ on the computer and sign in with your staff account. Go to **Accounts → Invitations → Add**. Enter your test email and leave Active checked. Students do not need staff access or a password.
+3. In mobile/.env, set EXPO_PUBLIC_API_URL to the computer's Wi-Fi address, as explained in [setup](setup.md). Keep the phone on the same private Wi-Fi.
+4. In another terminal, from mobile/, start Expo:
 
-## Configure real email and verified links
+   ~~~powershell
+   npm.cmd start -- --go
+   ~~~
 
-1. Choose an owned domain and email service; purchase/provider provisioning requires owner authorization. No provider or cost has been assumed or configured by this milestone.
-2. Set private backend settings from backend/.env.example: SMTP host/port/credentials, sender, and LOGIN_LINK_BASE_URL=https://YOUR_DOMAIN/login. The sender must be verified with your chosen email service. Preview builds also require an HTTPS EXPO_PUBLIC_API_URL reachable from the phone.
-3. In private mobile/.env set EXPO_PUBLIC_LOGIN_HOST=YOUR_DOMAIN (no scheme/path). This public hostname is bundled into the app. It must match the login-link host. App config generates auto-verified HTTPS /login intent filters only when a hostname is set.
-4. Android application ID defaults to com.swipeiq.mobile; backend ANDROID_PACKAGE must match it. Change the package before distributing builds if you require another identifier. Keep backend and mobile values aligned.
-5. EAS profiles are supplied in mobile/eas.json. After owner setup of an Expo account/project, run npx.cmd eas-cli@latest build --platform android --profile development or --profile preview from mobile/. Cloud build/account setup and publishing have not been run. A preview build uses the configured HTTPS API; a development build connects to Metro.
-6. Obtain the installed build signing certificate's SHA-256 fingerprint using npx.cmd eas-cli@latest credentials -p android. Set ANDROID_CERT_FINGERPRINTS on the backend to the fingerprint(s). Signing keys stay private; the public certificate fingerprint belongs in the association document.
-7. Serve the configured backend /.well-known/assetlinks.json on the exact login domain over HTTPS with application/json and no redirects. Without fingerprints this endpoint returns 404, intentionally. If the domain is hosted elsewhere, serve the equivalent association document there. Serve /login as the installation/help fallback. Configure host routing without request/body/token logging.
-8. Install the matching APK on your Android phone. Changing hostname/intent filters requires a new build. Verify Android recognizes the domain in the app's Open by default settings.
+   Scan the QR code with Expo Go. If an old screen still appears, stop Expo and run npm.cmd start -- --go --clear. If you use an installed development build instead, use npm.cmd start -- --dev-client.
 
-Reference instructions: [Expo SDK 57 Router](https://docs.expo.dev/versions/v57.0.0/sdk/router/), [installation](https://docs.expo.dev/router/installation/), [SecureStore](https://docs.expo.dev/versions/v57.0.0/sdk/securestore/), and [Android App Links](https://docs.expo.dev/linking/android-app-links/).
+5. Enter the invited email and tap **Send my login link**. Open the newest message in backend/.local-email/ privately in your editor. Copy its complete /login#token=... URL. A link is a temporary sign-in secret: do not put it in chat, Git, or screenshots.
+6. In the development app, tap **Test a local login link**, paste the URL, and tap **Read local link**. Then tap **Confirm sign-in**. Reading the link alone does not sign you in.
+7. Check that your email appears on the home screen. Tick **Biology (JAMB)** and tap **Let’s scroll** to open your feed. See the [feed guide](feed-phone-guide.md) for media and offline checks.
+8. Restart the app while connected and check that it remembers your sign-in. Tap **Sign out** and check that the account disappears. If disconnected, sign-out shows an error; reconnect and retry so the server can end the session too.
 
-## Acceptance checklist to record before closing M3
+Optional: set LOGIN_LINK_BASE_URL in backend/.env to http://YOUR_COMPUTER_WIFI_IPV4:8000/login and restart Django. The default localhost URL is fine for the development paste test because that test reads the token without opening the website.
 
-- Real invitation email received; unknown address gets the same generic app response and no invitation email.
-- Installed Android app opens the HTTPS email link while closed and while already running; no token consumed until Confirm sign-in.
-- Signed-in screen comes from an authenticated /auth/me/ request. Force-close/reopen preserves sign-in.
-- Expired, reused, malformed links offer a new-link route; resend and rate-limit recovery are understandable.
-- Logout revokes the credential; expired/deactivated sessions cannot read content.
-- Help page works when the app is unavailable. Capture device/build/date and outcomes without credentials or email tokens.
-- Published-content API identifies JAMB Biology, hides drafts/answer keys, and rejects inactive examinations. Do not expect a lesson feed screen before M4.
+These steps test local sign-in. They do not prove real email delivery or Android opening an HTTPS link in your installed app.
 
-Automated tests validate these server/client rules but do not prove actual Android intent delivery, email delivery, or secure storage on your phone. No such physical-device result is claimed yet.
+## Set up real email and links that open the app
+
+A domain is your website address. Android App Links let a link on that website open your app. Android checks a small file on the website to confirm that the website and app belong together.
+
+1. Choose a domain you own and an email service. Agree the service and budget before buying anything. Neither has been set up for this project yet.
+2. Fill in the private backend settings using backend/.env.example: the email service's SMTP host, port, credentials, and sender address. Verify the sender with that service. Set LOGIN_LINK_BASE_URL=https://YOUR_DOMAIN/login. Keep email credentials private.
+3. Set EXPO_PUBLIC_API_URL in mobile/.env to an HTTPS backend address that the phone can reach. An installed preview build requires HTTPS.
+4. Set EXPO_PUBLIC_LOGIN_HOST=YOUR_DOMAIN in mobile/.env. Use only the hostname, with no https:// or path. It must match the domain in the email link. This hostname becomes part of the app build and is not a secret.
+5. Check the app's Android ID. It defaults to com.swipeiq.mobile. The backend's ANDROID_PACKAGE must match. If you want a different ID, choose it before distributing builds.
+6. Set up an Expo account/project for builds. Expo's EAS service builds an installable Android app in the cloud. The project includes development and preview settings in mobile/eas.json. After that setup, from mobile/ run one of:
+
+   ~~~powershell
+   npx.cmd eas-cli@latest build --platform android --profile development
+   npx.cmd eas-cli@latest build --platform android --profile preview
+   ~~~
+
+   Choose **development** if you want it to connect to the local Expo server; choose **preview** for an installed app that runs without that server. No cloud build, account setup, or app publishing has been run for you.
+
+7. Get the build's signing certificate fingerprint:
+
+   ~~~powershell
+   npx.cmd eas-cli@latest credentials -p android
+   ~~~
+
+   Copy the SHA-256 fingerprint into the backend's ANDROID_CERT_FINGERPRINTS setting. A fingerprint is a public identifier for the build's signing certificate. Keep the actual signing keys private.
+
+8. Serve /.well-known/assetlinks.json on the exact login domain over HTTPS, with application/json and no redirect. Django provides this file when the package and fingerprints are configured; without fingerprints it returns 404. If the website is hosted elsewhere, put the matching file there. Android reads it to check the app/domain connection.
+9. Serve /login on the same domain as a help page for people who cannot open the app. Configure the host so it does not log login tokens or request bodies.
+10. Install the matching APK on the phone. In Android's app settings, check **Open by default** to confirm the domain can open this app. Changing the hostname, app-link settings, or native packages requires another app build.
+
+See the official guides for [Expo SDK 57 Router](https://docs.expo.dev/versions/v57.0.0/sdk/router/), [Router installation](https://docs.expo.dev/router/installation/), [protected phone storage](https://docs.expo.dev/versions/v57.0.0/sdk/securestore/), and [Android App Links](https://docs.expo.dev/linking/android-app-links/).
+
+## Phone checks before closing Milestone 3
+
+Record the phone model, Android version, build, date, and pass/fail notes. Leave live links and credentials out of the record.
+
+- The invited address receives a real email. An unknown address sees the same generic response in the app but receives no invitation email.
+- The installed app opens the email link when closed and when already running. The link is used only after Confirm sign-in.
+- The signed-in email is checked against the backend. Closing and reopening the app keeps the sign-in.
+- Expired, reused, or broken links explain how to request another. Too many requests produce a clear wait-and-retry message.
+- Sign-out ends the server session. Expired or deactivated sessions cannot fetch content.
+- The help page works when the app is unavailable.
+- The phone feed identifies JAMB Biology and hides drafts. The backend hides answer keys and inactive examinations.
+
+Automated tests check these rules in code. They do not prove email delivery, Android link handling, or protected storage on your phone. Those checks still need to be recorded. Human review of teaching content remains a separate requirement.

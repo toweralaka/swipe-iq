@@ -67,7 +67,7 @@ class StudentView(APIView):
 
 class MeView(StudentView):
     def get(self, request):
-        return Response({"id": request.user.pk, "email": request.auth.invitation.email})
+        return Response({"id": request.user.pk, "email": request.auth.invitation.email, "expires_at": request.auth.expires_at.isoformat()})
 
 
 class LogoutView(StudentView):

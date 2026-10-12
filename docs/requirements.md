@@ -8,7 +8,7 @@ Help invited Nigerian JAMB Biology candidates begin and sustain revision through
 
 ## Included
 
-Passwordless email links; topic-based published feed; text/images/audio/video; human-reviewed AI drafts; data saver and bounded caching; quizzes/explanations; progress; private likes with staff aggregates; asynchronous two-person challenges; pseudonymous pilot reporting.
+Passwordless email links; subject-selected full-screen published feed and search; text/images/audio/video; human-reviewed AI drafts; data saver and bounded caching; quizzes/explanations; progress; private likes with staff aggregates; asynchronous two-person challenges; pseudonymous pilot reporting.
 
 ## Excluded
 
@@ -25,3 +25,7 @@ Reviewer and topic shortlist unconfirmed. Recruitment, ages, email availability,
 ## Examination scope refinement — 2026-10-12
 
 Owner confirmed JAMB is the MVP examination; other examinations follow later. Subjects belong to an examination, so future student selection must identify **JAMB Biology**, rather than an ambiguous Biology. SSCE content, syllabus mapping, and student availability are outside this increment. See the [approved plan addendum](implementation-plan.md#examination-scope-refinement--2026-10-12).
+
+## Owner-requested swipe flow
+
+After sign-in, choose subjects using checkboxes labelled with their exam, then continue straight to full-screen posts. Swipe up to advance. Search stays within chosen subjects. Read more keeps full text and media alternatives available. Subject choices belong to this account's phone cache and can be changed or cleared. See the latest [approved plan addendum](implementation-plan.md#owner-approved-feed-change--2026-10-12).

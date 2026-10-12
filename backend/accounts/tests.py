@@ -237,3 +237,85 @@ class ContentAccessTests(AccessCase):
         response = self.client.get(f"/api/v1/topics/?subject={subject.pk}")
         self.assertEqual([item["id"] for item in response.data["results"]], [self.version.topic_id])
         self.assertEqual(self.client.get("/api/v1/units/?topic=bad").data["count"], 0)
+
+    def test_saved_lesson_check_excludes_drafts_withdrawn_and_inactive_exams(self):
+        url = "/api/v1/units/availability/"
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").status_code, 401)
+        self.sign_in()
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk, 99999]}, format="json").data["available_ids"], [])
+        publish(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [self.version.pk])
+        exam = self.version.topic.subject.examination
+        exam.is_active = False
+        exam.save()
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [])
+        exam.is_active = True
+        exam.save()
+        withdraw(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [])
+        for invalid in [{"version_ids": [self.version.pk] * 201}, {"version_ids": ["bad"]}, {}]:
+            self.assertEqual(self.client.post(url, invalid, format="json").status_code, 400)
+
+    def test_swipe_feed_requires_selection_and_hides_unpublished_content(self):
+        url = "/api/v1/feed/"
+        self.assertEqual(self.client.get(url, {"subjects": self.version.topic.subject_id}).status_code, 401)
+        self.sign_in()
+        subject = self.version.topic.subject_id
+        self.assertEqual(self.client.get(url, {"subjects": subject}).data["count"], 0)
+        for inputs in [{}, {"subjects": "bad"}, {"subjects": "0"}, {"subjects": ",".join(["1"] * 21)}, {"subjects": "1", "q": "x" * 121}]:
+            self.assertEqual(self.client.get(url, inputs).status_code, 400)
+        publish(self.version.pk, self.reviewer)
+        response = self.client.get(url, {"subjects": subject})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"][0]["cards"]), 2)
+        self.assertNotIn("questions", response.data["results"][0])
+        withdraw(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.get(url, {"subjects": subject}).data["count"], 0)
+
+    def test_swipe_feed_searches_cards_and_keeps_subject_exam_boundary(self):
+        card = self.version.cards.first()
+        card.text = "The membrane bouncer checks the guest list."
+        card.save()
+        publish(self.version.pk, self.reviewer)
+        other = LearningUnitVersion.objects.exclude(pk=self.version.pk).first()
+        exam = Examination.objects.create(code="ssce", name="SSCE", is_active=True)
+        biology = Subject.objects.create(name="Biology", examination=exam)
+        topic = Topic.objects.create(subject=biology, name="Cells")
+        other.topic = topic
+        for field in CHECKS:
+            setattr(other, field, True)
+        other.source_reference = "Checked fixture reference"
+        other.review_notes = "Automated fixture only"
+        other.save()
+        publish(other.pk, self.reviewer)
+        self.sign_in()
+        selected = self.version.topic.subject_id
+        for query in ["BOUNCER", "membrane guest", self.version.title]:
+            response = self.client.get("/api/v1/feed/", {"subjects": selected, "q": query})
+            self.assertEqual([row["id"] for row in response.data["results"]], [self.version.pk])
+        self.assertEqual(self.client.get("/api/v1/feed/", {"subjects": selected, "q": "doesnotexist"}).data["count"], 0)
+        mixed = self.client.get("/api/v1/feed/", {"subjects": f"{selected},{biology.pk}"})
+        self.assertEqual(set(row["id"] for row in mixed.data["results"]), {self.version.pk, other.pk})
+        exam.is_active = False
+        exam.save()
+        self.assertEqual(self.client.get("/api/v1/feed/", {"subjects": biology.pk}).data["count"], 0)
+
+    def test_swipe_feed_pagination_keeps_search_and_subjects(self):
+        from editorial.student_api import FeedPagination
+        publish(self.version.pk, self.reviewer)
+        other = LearningUnitVersion.objects.exclude(pk=self.version.pk).first()
+        for field in CHECKS:
+            setattr(other, field, True)
+        other.source_reference = "Checked fixture"
+        other.review_notes = "Automated fixture"
+        other.save()
+        publish(other.pk, self.reviewer)
+        self.sign_in()
+        with patch.object(FeedPagination, "page_size", 1):
+            response = self.client.get("/api/v1/feed/", {"subjects": self.version.topic.subject_id})
+            self.assertEqual(response.data["count"], 2)
+            self.assertEqual(len(response.data["results"]), 1)
+            self.assertIn("subjects=", response.data["next"])
+            second = self.client.get(response.data["next"])
+            self.assertNotEqual(response.data["results"][0]["id"], second.data["results"][0]["id"])

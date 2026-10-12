@@ -1,5 +1,5 @@
 import mimetypes
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, serializers
@@ -125,3 +125,51 @@ class StudentMedia(StudentView):
         response["Cache-Control"] = "private, no-store"
         response["X-Content-Type-Options"] = "nosniff"
         return response
+
+
+class AvailabilityInput(serializers.Serializer):
+    version_ids = serializers.ListField(child=serializers.IntegerField(min_value=1), max_length=200)
+
+
+class UnitAvailability(StudentView):
+    def post(self, request):
+        data = AvailabilityInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        ids = available_versions().filter(pk__in=data.validated_data["version_ids"]).values_list("pk", flat=True)
+        return Response({"available_ids": list(ids)})
+
+
+class FeedInput(serializers.Serializer):
+    subjects = serializers.CharField(max_length=220)
+    q = serializers.CharField(max_length=120, required=False, allow_blank=True, default="")
+
+    def validate_q(self, value):
+        if len(value.split()) > 10:
+            raise serializers.ValidationError("Use 10 words or fewer in your search.")
+        return value
+
+    def validate_subjects(self, value):
+        parts = value.split(",")
+        if len(parts) > 20 or not all(part.isascii() and part.isdigit() and 0 < int(part) <= 2147483647 for part in parts):
+            raise serializers.ValidationError("Choose between 1 and 20 subjects.")
+        return sorted(set(int(part) for part in parts))
+
+
+class FeedPagination(StudentPagination):
+    page_size = 10
+
+
+class FeedList(StudentList):
+    serializer_class = UnitDetailSerializer
+    pagination_class = FeedPagination
+
+    def get_queryset(self):
+        inputs = FeedInput(data=self.request.query_params)
+        inputs.is_valid(raise_exception=True)
+        data = inputs.validated_data
+        query = available_versions().filter(topic__subject_id__in=data["subjects"])
+        for term in data["q"].split():
+            query = query.filter(Q(title__icontains=term) | Q(objective__icontains=term)
+                | Q(cards__text__icontains=term) | Q(topic__name__icontains=term)
+                | Q(topic__subject__name__icontains=term))
+        return query.select_related("unit").prefetch_related("cards__media").distinct().order_by("-published_at", "-pk")

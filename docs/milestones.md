@@ -8,7 +8,8 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | 1 — Foundation | Implemented on feat/foundation; desktop checks passed; owner confirmed phone connection. |
 | 2 — Editorial content and media | Implementation and automated checks complete on feat/editorial-content; human content/media acceptance pending. |
 | 3 — Email login and student API | Implemented on feat/student-access; desktop checks passed; external configuration and installed-phone acceptance pending. |
-| 4–9 | Not started; separately authorized in sequence. |
+| 4 — Feed, playback, and caching | Implemented on feat/feed-playback-cache; desktop checks passed; phone playback, slow/offline, and large-text checks pending. |
+| 5–9 | Not started; each needs separate approval. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -143,3 +144,56 @@ Acceptance still pending:
 Next owner action: follow the local-outbox walkthrough for a reversible login check, then provide domain/email choices and record the installed-phone checks. Stop before M4 until owner approval. No commit, push, merge, or deployment authorized by this implementation request.
 
 Final M3 desktop checkpoint: clean npm ci succeeded from the updated lockfile; TypeScript, ESLint, all 14 mobile helper/lifecycle tests, and Android export passed again after that clean install. Local documentation links (28 checked), source whitespace, secret-pattern checks, and private outbox/environment/database/build exclusions pass. No real-device or remote CI result is inferred.
+
+## Milestone 4 — Phone lessons, media, and saved copies
+
+Owner requested the next milestone. Work is on **feat/feed-playback-cache**, based on the committed Milestone 3 code. The existing owner edit to AGENTS.md is preserved. This request authorizes Milestone 4 code; it does not close the outstanding human content review or real-email phone checks from earlier milestones.
+
+Objective: let an invited candidate choose JAMB → Biology → topic → lesson and use short lessons with a weak connection.
+
+Implemented:
+
+- Phone lists for exams, subjects, topics, and published lessons, with 20-item pages, Load more, empty lists, Retry, and Refresh. Exam names stay visible with Biology and topics.
+- Text-first cards and image descriptions, transcripts, timed video captions, file sizes, duration, and sources. Images load on request with data saver on by default. Turning it off loads visible images. Audio/video always wait for Load and Play.
+- Local-file playback using Expo Audio/Video. Playback pauses when its card leaves view, the route closes, or the app enters the background. Background playback, recording, and picture-in-picture are disabled.
+- Saved lists, lesson text, and complete media files under a shared 100 MB limit, including the index; maximum 200 entries. Items used least recently are removed first. Clear saved lessons and media is on the home screen.
+- Saved text is labelled Offline. Only a network failure can use it; HTTP rejection/error responses do not. A checked, unexpired account can restore offline. Successful sign-out, rejected sessions, and changing accounts clear saved content; requests started before clearing cannot save into the old cache.
+- A protected availability check removes withdrawn/replaced lesson versions on opening the feed, returning to the app, and reconnecting. The phone cannot know about new withdrawals while offline.
+- README admin/student walkthroughs, a [phone feed guide](feed-phone-guide.md), updated login/API/architecture notes, and learning notes in plain language. No migrations or extra exam data are needed.
+
+Desktop checks:
+
+- All 54 backend tests pass. Django system check, migration check, and Python dependency check pass.
+- Mobile type checks, lint, and helper tests pass. Expo dependency alignment and Android bundle export pass. See the final checkpoint below for the final test count after review.
+- Cache tests cover the byte limit, removal order, missing/corrupt files, unfinished downloads, clearing, account changes, and late requests. Feed tests cover publication removal, trusted pagination, captions, and network-only fallback. Login tests cover offline restore and account/credential binding.
+- npm still reports 28 advisories (10 moderate, 18 high), as recorded during dependency installation; these are unresolved. Node's module auto-detection warning is non-failing.
+
+Still required before calling Milestone 4 fully accepted:
+
+- On a physical Android phone, record text/image/audio/video behaviour, no autoplay, offscreen/background pause, matching captions, large text, slow/interrupted connections, offline reads, reconnect after a withdrawal/replacement, and clearing/sign-out. Use the [checklist](feed-phone-guide.md#record-the-phone-results).
+- Use an installed preview build for a true offline restart check; Expo Go may need the development server to start.
+- M2 human review of actual permitted teaching/media samples and M3 real email/domain/installed-app link checks remain pending.
+
+No content was auto-published. No commit, push, cloud build, deployment, quiz, like, or challenge work was performed. Stop here for owner review before Milestone 5.
+
+### Final Milestone 4 desktop checkpoint
+
+Passed: 54 backend tests, 30 mobile tests, Django system/migration/dependency checks, TypeScript, ESLint, Expo dependency alignment, and final Android export after the playback review. All 48 local links across README and docs resolve. New source files and milestone changes pass whitespace checks; the owner's existing AGENTS.md edit is excluded and preserved. Real environment files, private email messages, local database, and Android export files are not tracked. Remote CI and physical-phone results have not been run or inferred.
+
+### Follow-up: expo-video bundler error
+
+The package is present at version 57.0.5. A fresh Android export with --clear succeeded (1,301 modules), including the media imports. Added stop/restart/cache-clear steps to the phone guide. This points to stale state in the running Expo server; the owner's phone reload is still required to confirm the fix there.
+
+### Owner-requested Milestone 4 feed redesign
+
+The owner asked for a playful subject picker and swipe feed, with search. Recorded the changed flow and acceptance criteria in the approved plan addendum. Work stays on feat/feed-playback-cache; existing owner changes remain preserved.
+
+- Sign-in now leads to subject checkboxes, labelled Biology (JAMB), followed directly by a full-screen feed. Subject picks are saved per account in the phone cache; no new database tables are needed.
+- Colourful posts use large type, vertical paging, clear end/error states, and Read more for complete text and alternatives. Settings and subject changes are available from the feed. Small screens/larger text can open media in the full view.
+- Added a protected, paginated feed/search route. It filters selected subject IDs, active exams, and latest published versions. Search is bounded word matching over public teaching text; drafts and answer keys stay hidden. It does not create content or add recommendations.
+- Kept data saver, no autoplay, pause on leaving the visible post or media area, account clearing, saved-page labels, and publication rechecks. Search requests happen on submission, not each keystroke.
+- Updated README, phone/login guides, API contract, requirements, architecture, and learning log with plain steps.
+
+Verification: 57 backend tests and 34 mobile helper tests pass; Django system and migration checks, TypeScript, and ESLint pass. Android export passes; its first run alongside all other checks exceeded the command time limit, and a separate run completed successfully. New tests cover subject/exam boundaries, search, pagination, saved choices, cache isolation, and removal of withdrawn feed pages. No new packages were added by this redesign. Existing dependency advisories remain unresolved.
+
+Phone acceptance is still pending: sign-in → selection → feed, one-post swiping, subject changes, search/empty results, small-screen/larger-text access, playback pause including overlays, and slow/offline/reconnect checks. The design is intended to feel more inviting; no measured engagement gain is claimed. No sample was auto-published, and no commit, push, deployment, or later milestone was performed.
