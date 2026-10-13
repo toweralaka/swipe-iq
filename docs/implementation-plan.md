@@ -1,6 +1,7 @@
 # Swipe-IQ: JAMB Biology MVP — Approved Implementation Plan
 
-Status: Approved by the project owner on 2026-10-12 (Africa/Lagos).
+Status: Baseline approved on 2026-10-12; admin AI-generation revision approved on 2026-10-13 (Africa/Lagos).
+This document describes the approved target. AI-1, AI-2, and AI-3 are not started. The current application still uses manual draft entry and requires three questions until AI-1 changes those rules.
 This document preserves the approved revised plan. Execution is authorized one milestone at a time; approval of the plan is not approval to implement every milestone.
 
 ## 1. Problem and target audience
@@ -27,8 +28,8 @@ Proposed pilot: 10–15 invited candidates over one week.
 
 | Indicator | Measurement and initial goal |
 | --- | --- |
-| Usability | At least 80% complete login → learning unit → quiz without help. |
-| Engagement | At least 60% of started units reach quiz completion. |
+| Usability | At least 80% complete login → subject selection → feed without help; assess optional dare usability separately. |
+| Engagement | Measure enjoyment and voluntary dare acceptance; quiz completion is not required to use the feed. |
 | Return use | At least 50% return on another day. |
 | Expressed interest | Unique likes / unique content viewers, by topic and media type. |
 | Learning | Equivalent baseline and delayed questions 48–72 hours apart; report changes and participant counts. |
@@ -41,17 +42,17 @@ Thresholds guide investigation, not promised outcomes. Likes express interest, n
 
 Confirmed: text, images, audio, and video are included now; data saver and caching are included; downloadable offline lessons are deferred; login is invitation-only.
 
-Start with six learning units across three syllabus-aligned topics, covering all four media types across the collection. Each unit has one learning objective, up to three feed items, and three four-choice questions.
+Start with six posts across three syllabus-aligned topics, covering all four media types across the collection. Each new post has one learning objective, exactly one content card, and zero or exactly three four-choice questions. Only posts with three reviewed questions can supply dares. Preserve existing content and version history.
 
 | Feature | Acceptance criteria |
 | --- | --- |
 | Email login links | An invited candidate requests a link, opens it on Android, and signs in without a password. Expired, used, and invalid links offer recovery. Non-invited addresses cannot register. |
-| Topic-based feed | Candidates choose Biology topics and browse published content. Drafts remain inaccessible. Loading, empty, error, retry, and end states work. |
+| Subject-based feed | Candidates choose exam-labelled subjects and browse a random mix of standalone published posts. Drafts remain inaccessible. Loading, empty, error, retry, and end states work. |
 | Text and images | Text loads independently of optional media. Images are compressed, have alternative descriptions, and load on request in data saver mode. |
 | Audio | User-initiated playback; duration and download size shown; transcript supplies the educational explanation without playback. |
 | Video | User-initiated playback; lightweight version, captions, and text summary available; leaving the item stops playback. |
-| AI-assisted publishing | AI drafts are manually entered; a human checks accuracy, humour, syllabus alignment, references, accessibility, and media rights before publication. |
-| Quizzes | Server calculates scores; answer keys hidden before submission; results explain answers; submission retries do not create duplicates. |
+| AI-assisted publishing | Staff request new text, image, meme, or silent captioned video drafts through admin in stages AI-1–AI-3. Questions are optional. A human checks accuracy, humour, syllabus alignment, references, accessibility, and media rights before explicit publication. Manual drafting remains available. |
+| Quizzes | Optional dares use only published posts with three reviewed questions. Zero-question posts remain publishable and visible in the feed. Server calculates scores; keys stay hidden before submission; explanations follow submission; retries do not create duplicates. |
 | Progress | Completed units and quiz history persist across sessions; first attempts and repeat practice are distinguishable. |
 | Likes | Like/unlike individual feed items; at most one active like per account/item; persisted state; failed requests do not display false success. |
 | Challenges | Two candidates use a code to complete the same quiz version at different times; one scored challenge attempt each; ties supported. |
@@ -66,7 +67,7 @@ Challenge defaults: seven-day expiry, no self-joining, no public leaderboard, sc
 - Candidate uploads and creator profiles.
 - Sharing, comments, messaging, follows, and public discovery.
 - Live battles and algorithmic recommendations.
-- Integrated AI generation and automatic publication.
+- Automatic publication, audio generation, narrated video, bulk generation, and AI regeneration of existing posts. Integrated generation of new posts is planned in AI-1–AI-3.
 - Offline quiz/like synchronization and downloadable lesson packs.
 - Full syllabus coverage, full mock examinations, iOS, and app-store release.
 
@@ -86,18 +87,21 @@ References: https://fastapi.tiangolo.com/features/ and https://docs.djangoprojec
 
 ### Components
 
-External AI tool → manual draft entry → Django admin → reviewed publication.
+Django admin generation request → database job queue → worker → OpenAI API → validated unreviewed draft → human review → explicit publication. Manual draft entry remains available.
 Android app ↔ DRF API ↔ database; app also uses local cache and media storage/CDN; backend uses email delivery.
 
 - React Native + Expo + TypeScript: Android screens, navigation, playback, caching, and API calls.
-- Django admin: staff-only drafting, media attachment, review, publication, and withdrawal.
+- Django admin: staff-only generation requests/status, manual drafting, media attachment, review, publication, and withdrawal.
+- Generation worker: a separate process in the same Django project, started by a management command; processes database jobs without blocking admin pages. No Redis or Celery initially.
+- OpenAI adapter: backend-only credentials and configured models; validated structured text/questions, image generation, and asynchronous video jobs.
+- Pillow and FFmpeg/ffprobe: prepare generated images/memes and videos for existing media limits; retain private originals for staff inspection.
 - DRF: authentication, content access, scoring, likes, challenges, reporting.
 - SQLite locally; PostgreSQL before hosted pilot: simple initial setup, then verify deployment behavior.
 - Object storage/CDN: store and deliver media outside application requests.
 - Email service: login-link delivery; local email backend during development.
 - REST/JSON under /api/v1/: documented frontend/backend communication.
 
-One backend application; no microservices or background processing platform initially.
+One backend project; no microservices or separate queue platform initially. AI generation adds one configured worker process and database-backed jobs.
 
 ### Passwordless login
 
@@ -125,14 +129,15 @@ Data saver enabled by default.
 - Label cached content offline; refresh publication status on reconnection.
 - Clear account-specific cached data on logout.
 - Connectivity required for login, quiz submission, likes, and challenges. Preserve selected quiz answers locally until submission succeeds.
+- Admin generation requires a provider connection. Generation jobs do not introduce candidate offline quiz/like synchronization.
 
-Editorial limits: images ≤250 KB; audio ≤90 seconds/1 MB; video ≤60 seconds/5 MB and ≤480p. Staff prepare compatible files before upload. Automated transcoding and adaptive streaming are deferred.
+Editorial limits: images ≤250 KB; audio ≤90 seconds/1 MB; video ≤60 seconds/5 MB and height ≤480 pixels. Staff can still prepare uploaded files manually. AI-2 adds generated-image/meme preparation; AI-3 adds generated-video conversion to these limits. General upload transcoding and adaptive streaming remain deferred.
 
 These are pilot defaults to test, not playback guarantees. Text alternatives keep objectives accessible when media fails.
 
 ### Data and API boundaries
 
-Core records: users/invitations, login tokens/sessions, syllabus topics/objectives, learning-unit versions, feed items, media assets, questions, attempts, likes, challenges, learning events.
+Core records: users/invitations, login tokens/sessions, syllabus topics/objectives, learning-unit versions, feed items, media assets, questions, attempts, likes, challenges, learning events, generation jobs and their provenance.
 
 - Published versions immutable; corrections create replacements.
 - Attempts/challenges retain original version.
@@ -141,6 +146,8 @@ Core records: users/invitations, login tokens/sessions, syllabus topics/objectiv
 - Endpoints: login-link request/exchange, logout, content, attempts, progress, like/unlike, challenge lifecycle.
 - Idempotent like/unlike operations and unique submission identifiers support safe retries.
 - Server enforces permissions and publication visibility.
+- Generation is staff-only through admin, with a separate permission; no public generation endpoint.
+- Feed responses add quiz_available without questions or keys. Older cached posts missing the flag remain readable but cannot supply dares until refreshed.
 
 ## 4. Implementation milestones
 
@@ -218,14 +225,26 @@ Branch rule: inspect working tree before changes. Use docs/jamb-mvp-plan for app
 
 Every milestone gets a short plan, owner approval, implementation, verification, and learning note. Split further if changes become difficult to review.
 
+### AI generation stages — approved 2026-10-13
+
+These stages extend the approved scope without renumbering Milestones 0–9. Each needs separate implementation approval; approving this document does not start a stage or automatically change the existing milestone order.
+
+| Stage | Status | Objective and prerequisites | Tasks and completion criteria |
+| --- | --- | --- | --- |
+| AI-1 — Admin jobs and text | Not started; separate approval required | New-post generation after the editorial/feed/quiz foundations. Provider configuration and a checked source example are needed before live checks. | Admin form, generation permission, job model/migration, queue worker, provider adapter, validated text/optional questions, and quiz eligibility. Admin can generate and review a draft; zero-question posts publish and never supply dares; permission, duplicate, and recovery tests pass. |
+| AI-2 — Images and memes | Not started; separate approval required | Actual generated media after AI-1 acceptance. Requires image-model access and Pillow. | Generate original images, render meme captions locally, prepare descriptions and private previews. Prepared images meet the 250 KB limit; text is readable; human/device review passes. |
+| AI-3 — Silent captioned videos | Not started; separate approval required | Actual videos after AI-2 acceptance. Requires video-model access, FFmpeg/ffprobe, and worker runtime checks. | Save/poll provider jobs, download and prepare a silent captioned MP4 with a text alternative. Default eight-second portrait clip; height ≤480 pixels and size ≤5 MB; actual format/duration, Android playback, and human review pass. |
+
 ## 5. Testing and quality
 
-- Backend: publication, permissions, login expiry/reuse, scoring, duplicates, likes, challenge transitions.
-- Mobile: login recovery, data saver, loading/errors, likes, submissions, playback.
+- Backend: publication with zero or exactly three questions, permissions, login expiry/reuse, scoring, duplicates, likes, challenge transitions, generation recovery, provider failures, and atomic draft creation.
+- Mobile: login recovery, data saver, loading/errors, likes, submissions, playback, quiz eligibility, and stable dare placement with question-free posts.
 - Real Android: email links with app closed/open, slow connections, interrupted media, larger fonts, cache.
-- Integration: PostgreSQL before hosting; real email delivery and storage.
+- Integration: PostgreSQL before hosting; real email delivery and storage; a controlled live generation check for each separately approved AI stage. Automated tests mock providers and spend no API credits.
 - CI: backend checks/tests, TypeScript, frontend tests, linting.
 - Editorial: Biology accuracy, syllabus mapping, humour, accessibility, references, media rights; tests cannot establish educational quality.
+- Media preparation: actual image sizes/meme readability and decoded video duration, dimensions, format, captions, and private storage. Reject files that cannot meet limits. Human preview and Android playback remain required.
+- Generation failures: unauthorized access, duplicate clicks/imports, invalid output, refusals, missing settings, rate limits, uncertain timeouts, and no automatic publication.
 
 Done: acceptance criteria demonstrated, relevant checks pass, critical findings resolved, documentation updated, important code explained plainly.
 
@@ -259,14 +278,16 @@ Existing wip notes are ignored working context, not authoritative shared documen
 
 | Risk | Response |
 | --- | --- |
-| Media increases scope/cost | Short manually prepared files, fixed limits, no automatic transcoding. |
+| Media increases scope/cost | Separate AI stages, short outputs, fixed limits, bounded requests, and preparation checks. |
+| Paid requests duplicate or fail | Save job/provider IDs, resume known jobs, and flag uncertain outcomes rather than blindly submitting another paid request. |
+| Generated files fail device limits | Prepare images with Pillow and videos with FFmpeg; reject unreadable/oversized results and require human/device review. |
 | Email delays block access | Early delivery test; resend/recovery; monitor without secrets. |
 | AI misconceptions | Review each item/question; independently verify references. |
 | Likes reward entertainment alone | Compare with completion and delayed learning. |
 | Cache becomes outdated | Version assets; refresh status online; label offline; bound retention. |
 | Recruitment assumptions fail | Confirm access, ages, email availability, willingness. |
 
-Before relevant milestones: identify reviewer, three syllabus topics, pilot organizer, email service/domain, hosting budget. Provider selection belongs in milestone planning; no purchase/configuration is authorized by this plan alone.
+Before relevant milestones: identify reviewer, three syllabus topics, pilot organizer, email service/domain, and hosting budget. OpenAI is selected for generation. Before live AI checks, establish API account access/funding, backend-only credentials, configured models, and a server-enforced daily limit. Verify SDK compatibility and model access in each stage. FFmpeg/ffprobe were not found on PATH during planning; install them before AI-3. Hosting the generator also requires worker operation, private-file backups, and spending monitoring. This documentation approval does not authorize paid calls, purchases, installations, or application implementation.
 
 ## 8. Four-minute demonstration
 
@@ -283,6 +304,8 @@ Use clearly labelled sample data if evaluation has not occurred; do not invent i
 
 ## Examination scope refinement — 2026-10-12
 
+Historical decision record: status statements below describe that checkpoint, not current implementation status.
+
 Owner requested examination-aware models: JAMB is the MVP examination, with others such as SSCE reserved for future releases. This explicitly refines the existing topic-based feed and M2 content hierarchy; it does not authorize additional milestones or examinations in the MVP.
 
 - Examination → Subject → Topic → Learning unit version. Biology is unique per examination, not globally.
@@ -294,6 +317,8 @@ Owner requested examination-aware models: JAMB is the MVP examination, with othe
 Acceptance for this model increment: JAMB Biology and SSCE Biology can coexist; duplicate Biology within one examination is rejected; every subject requires an examination; existing lessons retain their data under JAMB; seed commands target JAMB; tests verify migration, filtering, and history protection. Future examinations require their own reviewed syllabus/content before activation.
 
 ## Owner-approved feed change — 2026-10-12
+
+Historical decision record: this was the scope of that feed increment; later milestones and approved revisions extend it.
 
 The owner asked to replace the lesson-menu entry flow with a playful, full-screen feed and search. This updates the earlier topic-based entry flow within Milestone 4. Other milestone boundaries and publication rules stay in place.
 
@@ -311,6 +336,8 @@ The feed uses reviewed card text already in the database. A new layout does not 
 
 ## Owner-approved entertainment-first update — 2026-10-12
 
+Historical decision record, retained. The AI revision below adds optional question generation and quiz eligibility; the entertainment-first experience remains the target.
+
 The owner clarified that Swipe-IQ is for fun, relaxing scrolling, with Biology woven into entertaining content. This update supersedes earlier lesson-sequence, fixed post-to-quiz, multi-card publication, and completion-target assumptions. The owner explicitly authorized implementation after choosing in-feed dares and one content item per post.
 
 Acceptance criteria:
@@ -325,3 +352,81 @@ Acceptance criteria:
 - Maintain subject/search boundaries, publication removal, no autoplay, offscreen/background pause, data saver, bounded cache, and offline labels. Saved feed pages retain their mix and next cursor. Withdrawal during paging must not cause offset-based skipping.
 
 Evaluation changes: remove the proposed 60% started-unit-to-quiz completion target as a product success requirement. Measure voluntary dare acceptance separately from return use and enjoyment; optional quiz use must not gate access. Learning/retention remains a hypothesis tested with agreed pilot questions; incidental learning is an intended effect, not an established fact. Likes and two-person challenges remain separately authorized milestones.
+
+## Owner-approved admin AI-generation revision — 2026-10-13
+
+Owner approval covers this documentation update and the following target scope. AI-1, AI-2, and AI-3 remain not started, with separate approval required before each stage. The running application and prior implementation evidence are unchanged. This revision supersedes manual-only AI drafting, the integrated-generation deferral, universal three-question publication, and the generated-media preparation deferral. Human review and explicit publication remain mandatory.
+
+### Admin workflow
+
+1. Open Content generation in Django admin and choose an existing topic. Its subject and examination are filled from that topic.
+2. Enter one learning objective, the desired content brief, the official syllabus excerpt/reference, and checked teaching material. Start with staff-supplied sources; automatic syllabus downloading and web research are deferred.
+3. Choose text, image, meme, or video. Enable each format only when its stage is implemented and configured. Generate three quiz questions starts unchecked.
+4. Click Generate draft and return promptly to a saved job page. Show queued, generating, preparing media, draft ready, failed, or needs checking. Refresh reads saved progress; it must not start another paid request.
+5. Open the new unreviewed draft and edit it. Each request creates exactly one card and either zero or three questions, according to the checkbox.
+6. Check the content, questions, media, references, humour, accessibility, and rights. Complete the existing six human-review confirmations and media verification, then explicitly publish.
+
+Each request creates a new post, not a replacement. Manual authoring remains available. Do not overwrite existing text, card identities, questions, review records, likes, or attempts. Question-free posts appear in the feed and subject list but never supply dares. Adding questions to a published question-free post uses the existing human-reviewed replacement workflow; AI regeneration of existing posts is deferred.
+
+### Worker, validation, and private storage
+
+- Add a generation Django app with a database queue and management-command worker. One configured worker processes one job at a time. Provider calls run outside admin requests and long database transactions; no Redis or Celery initially.
+- Require an explicit staff generation permission. Protect job results/files with staff permissions. Candidates cannot inspect jobs or trigger generation. Keep API keys in the backend environment, never in mobile configuration or browser responses. Send content briefs/references, not candidate data.
+- Request schema-constrained text, then validate it in the application: one card, the chosen format, and zero or exactly three questions. Each question needs four distinct choices, one correct answer, and an explanation. Structured output does not establish scientific accuracy.
+- Record the creator, brief/source snapshot, format, questions flag, prompt version, provider/model IDs, timestamps/status, available usage, and resulting draft link. Show safe failure messages without credentials or raw provider error bodies.
+- Create the new unit/version/card and optional questions in one database transaction. Link a job to at most one resulting draft. Leave all review confirmations and media approval unset. Do not present a half-created draft as ready.
+- Store originals and prepared assets privately, outside Git. Reuse authenticated previews, not public file URLs. Isolate failed/unfinished files from published assets.
+- Text produces a standalone funny post. Images produce actual original visuals with meaningful text alternatives. Memes use a generated background and locally rendered captions so saved words match the requested caption; store memes as image assets.
+- Pillow prepares images/memes. FFmpeg/ffprobe prepares generated video, strips audio, and checks actual duration/dimensions. Supply readable captions and a text alternative. Reject files that cannot meet existing limits without becoming unreadable; retain them privately for staff inspection.
+
+### Failures and compatibility
+
+- Duplicate clicks reuse a generation request rather than adding paid jobs. Reprocessing a completed job must not import another draft.
+- Save known provider job IDs and resume/check those jobs after worker restarts. Video polling reads an existing job; it does not submit new generation requests.
+- If a submitted request times out with no reliable outcome, mark it needs checking. Do not automatically start another paid generation. Staff can explicitly create a new job after checking the uncertainty and potential additional cost.
+- Handle refusals, invalid output, missing credentials/models, rate limits, preparation failures, and storage errors with a clear saved status and no automatic publication.
+- Add quiz_available to safe post responses. Reject new quiz access/submissions for posts without three questions. Keep keys private and preserve retrieval/retries of previously accepted attempts.
+- Choose dare candidates only from eligible posts already loaded. Pages without eligible posts must not generate broken dares. Loading more must not insert dares retroactively or reorder earlier entries. Cached posts missing the flag stay readable but cannot supply dares until refreshed.
+
+### Defaults and prerequisites
+
+- One new post per job; no bulk generation. Questions unchecked by default.
+- One configured worker; server-enforced limit of five new generation jobs per day.
+- Model names, timeouts, and limits are backend configuration, not arbitrary admin inputs. Generation stays disabled until credentials, model names, and the daily limit are configured.
+- Verify API account access, funding, chosen-model availability, and Python SDK/media-library compatibility before live checks. Pin verified dependency versions; do not assume every account supports every format.
+- Audio generation, narrated video, existing-post AI regeneration, and automatic publication remain deferred. Existing manually uploaded audio remains supported.
+- Before hosting, configure worker operation, private-file backups, and spending monitoring. A request quota is not a guaranteed currency spending cap.
+
+### Files to change during implementation
+
+| Files/area | Planned changes |
+| --- | --- |
+| backend/generation/ (new) | Job model/migration, admin form/status/permissions, OpenAI adapter, prompts/output validation, worker command, private media preparation, and tests. |
+| backend/config/settings.py; backend/.env.example; backend/requirements.txt | Register the app, placeholder settings, backend credential/model/limit configuration, and pinned dependencies. |
+| backend/editorial/services.py; backend/editorial/admin.py | Permit zero or exactly three questions, retain human-review gates, explain optional questions, and link generated drafts to their job. |
+| backend/editorial/student_api.py | Expose quiz_available without questions, keys, or private generation metadata. |
+| backend/learning/views.py; backend/learning/services.py | Reject new access/submissions for missing quizzes while retaining original results and accepted-submission retries. |
+| mobile/src/feed/types.ts; mobile/src/feed/mix.ts; mobile/src/feed/repository.ts | Read/cache eligibility and select safe dare candidates without changing existing feed positions. |
+| Backend and mobile test files | Cover job recovery, permissions, publication/quiz eligibility, output validation, retries, media preparation, and cache compatibility. |
+| AGENTS.md | During AI-1, align manual-only/deferred-generation rules with this approved scope and mandatory human review. This documentation-only update does not edit AGENTS.md. |
+| README.md and docs/ | At the corresponding stage, update setup, requirements, architecture, milestones, drafting/editorial/media guides, API notes, and learning log to match implemented behavior. |
+| .github/workflows/checks.yml | Add media-processing test dependencies when those stages arrive. |
+
+### Acceptance checks
+
+- Unauthorized users cannot generate content or inspect private jobs/files. Server limits apply to duplicate/concurrent submissions.
+- Double-clicks and worker recovery do not duplicate jobs or drafts; unknown paid-request outcomes do not trigger blind retries.
+- Refusals, malformed output, missing settings, rate limits, timeouts, storage/preparation failures, and interrupted imports produce clear statuses without half-ready drafts.
+- Generated output never sets review confirmations or publishes itself. Human editing and explicit publication remain necessary.
+- Zero-question and complete three-question posts can publish; one or two questions cannot. Question-free posts still appear in the feed/subject list but never supply dares. Preserve existing content and attempt history.
+- Pagination and older cached data keep posts readable and dare placement stable, including pages with no quiz-eligible posts.
+- Image/meme size and readability pass; video actual duration/dimensions/format and text alternatives pass. Human preview and physical Android checks are required for media acceptance.
+- Automated tests mock providers and spend no credits. Each separately approved stage also needs a controlled live generation check and human review. Mocked tests do not establish API access, output quality, or phone success.
+
+Official provider references used during planning:
+
+- [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+- [Image generation](https://developers.openai.com/api/docs/guides/image-generation)
+- [Video generation](https://developers.openai.com/api/docs/guides/video-generation)
+
+Related project references: [Editorial workflow](content/editorial-workflow.md), [media preparation](content/media-preparation.md), and [milestone status](milestones.md). These describe existing implementation checkpoints and will be aligned when the corresponding AI stage is implemented.
