@@ -10,7 +10,8 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | 3 — Email login and student API | Implemented on feat/student-access; desktop checks passed; external configuration and installed-phone acceptance pending. |
 | 4 — Feed, playback, and caching | Implemented on feat/feed-playback-cache; desktop checks passed; phone playback, slow/offline, and large-text checks pending. |
 | 5 — Quizzes and progress | Implemented on feat/quizzes-progress; desktop checks passed; physical-phone acceptance pending. |
-| 6–9 | Not started; each needs separate approval. |
+| 6 — Likes and engagement evidence | Implemented on feat/likes-engagement; desktop checks passed; phone and PostgreSQL acceptance pending. |
+| 7–9 | Not started; each needs separate approval. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -238,3 +239,22 @@ Implemented on feat/quizzes-progress, preserving the uncommitted Milestone 5 wor
 Verification: 75 backend tests and 48 mobile helper tests pass, with TypeScript, ESLint, system/migration/dependency checks, and final Android export. Tests include one-card publication, preservation on seed reruns, mix/cursor stability, withdrawal while paging, optional dare spacing, offline mix/cursor recovery, and unfinished-dare access. Expo dependency alignment passes; no packages added. Existing dependency advisories remain unresolved.
 
 Physical-phone acceptance remains open: varied dare placement, skip/accept, refresh/load-more, pause when scrolling onto a dare, saved dare after restart, small-screen/large-text controls, search, offline reads, and reconnect. Remote CI not run. No content auto-published, no commit/push/deployment, and no two-person challenge claim.
+
+## Milestone 6 — Likes and engagement evidence — 2026-10-13
+
+Owner authorized the next milestone. Work is isolated on feat/likes-engagement from the committed Milestone 5 code. Earlier editorial/media, real-email, and physical-phone acceptance remain open; this request authorizes code work without claiming those checks passed.
+
+Implemented:
+
+- Private like/unlike on feed posts and Read more; explicit true/false requests and a unique candidate/unit/card constraint prevent duplicates. Publication/exam/card access checks apply to reads and writes. Corrected versions retaining the card identity share likes. Feed order is unchanged.
+- Confirmed-state phone controls disable repeated taps. An uncertain reply keeps the prior confirmed value with an error and requires a GET check before another change. Offline writes are disabled, never queued. A shared account-bound auth helper protects both quizzes and engagement; in-memory state resets across accounts.
+- Daily unique post-visible, dare-shown, and dare-accepted records, using server Nigeria dates and context snapshots. Mostly-visible foreground items wait one second. Quick acceptance also ensures exposure. Skip sends no request. Failed/offline event delivery is discarded. No third-party analytics.
+- Staff-only aggregate JSON export, with explicit export permission and a bounded 1–90-day window. It excludes emails, usernames, account IDs, credentials, selected answers, and keys. Includes topic/media activity, current likes, likes among the same observed viewers, and first/practice server quiz totals. Counts are partial pilot evidence, not proof of learning.
+- Engagement migration applied locally. Compared all pre-existing editorial, learning, and account rows before/after: preserved. No content published, no sample activity or accounts created.
+- README, plain-language phone/admin walkthrough, API contract, requirements, architecture, and learning log updated.
+
+Desktop checks: 90 backend tests and 55 mobile helper tests pass; Django system/migration/dependency checks, TypeScript, ESLint, Expo dependency alignment, Android export, local documentation links, and Git whitespace checks pass. New tests cover duplicate/reversed state requests, privacy, publication boundaries, stable revisions, daily events/timezone, constraints, report permissions/fields, lost replies, and client delivery guards. No packages added. Existing dependency advisories and non-failing Node module warnings remain as previously recorded.
+
+Still open: physical-phone like/unlike, lost-reply recovery, offline/account isolation, large text/small screens, and native visibility/background timing checks in the [walkthrough](likes-and-engagement-guide.md). Actual PostgreSQL overlapping writes and report behavior need verification before hosted pilot; SQLite and simulated errors do not prove those. Remote CI has not run for these uncommitted changes.
+
+No commit, push, deployment, friend challenges, or later milestone implemented. Stop for owner review before Milestone 7.

@@ -1,3 +1,4 @@
+from engagement.views import LikeView, EventView
 from django.contrib import admin
 from django.urls import path
 from health.views import health
@@ -9,6 +10,8 @@ from editorial.student_api import ExaminationList, SubjectList, TopicList, UnitL
 from learning.views import QuizView, AttemptList, AttemptResult, ProgressView
 
 urlpatterns = [
+    path("api/v1/units/<int:version_id>/cards/<uuid:identity>/like/", LikeView.as_view()),
+    path("api/v1/engagement/events/", EventView.as_view()),
     path("login", login_help),
     path(".well-known/assetlinks.json", assetlinks),
     path("api/v1/auth/request-link/", RequestLinkView.as_view()),

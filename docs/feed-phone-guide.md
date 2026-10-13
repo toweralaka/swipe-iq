@@ -148,3 +148,9 @@ For an installed development build, use npm.cmd start -- --dev-client --clear in
 ## Quick play and progress
 
 Accept a purple in-feed dare with **I’m game ✦**, or skip it and keep scrolling. Answer three questions and submit to see your score and explanations. Open **Settings → My progress** for history and unfinished dares. There are no quiz buttons on ordinary posts. Follow the [quiz phone guide](quiz-phone-guide.md) for setup, saved answers, retries, and the phone checklist.
+
+## Private likes and pilot counts
+
+Tap **♡ Like** on a post or in Read more. Wait for **♥ Liked** before treating it as saved; tap it to unlike. Errors offer **Retry like check**, which reads what the server saved. Offline posts cannot change likes, and reconnecting never uploads an old tap automatically. Like state belongs to your account and does not affect random ordering.
+
+The pilot counts connected, mostly-visible posts and optional dare choices once per user/post/day. These are not exact reading totals. Follow the [likes and report walkthrough](likes-and-engagement-guide.md) for phone checks and staff export steps.

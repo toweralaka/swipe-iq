@@ -39,3 +39,9 @@ Quick play now offers three questions for a published post. The server scores al
 Users scroll a random subject-based mix for fun; there is no required learning sequence. New publications have exactly one content card; carousels are deferred. Older content stays intact. Optional in-feed dare cards appear at varied intervals, can be skipped, and are independent of finishing a post. Fixed post-ending quiz buttons are removed. Current accepted dares are solo plays; friend challenges remain Milestone 7 and are labelled as coming later. Settings → My progress keeps unfinished dares and optional play history reachable.
 
 Acceptance: one-card publishing, stable shuffled cursor pages, subject/search boundaries, no server write on skipping, no answer keys before submission, unchanged retry/account protections, saved mixed pages offline, and pause when media leaves view for a dare. Physical-phone checks remain open. See the latest [approved-plan addendum](implementation-plan.md#owner-approved-entertainment-first-update--2026-10-12).
+
+## Milestone 6 implementation
+
+A candidate can privately like/unlike a published feed item. Repeated taps or identical requests cannot add duplicate likes. Corrections that retain the stable card identity keep the like. The phone waits for server confirmation; an uncertain reply offers a state check instead of another blind toggle. Offline likes are disabled and are never queued. Likes do not rank the feed.
+
+Connected visible posts and optional dare shown/accepted signals count at most once per candidate/stable post/day. Skipping remains request-free. Staff with explicit export permission can download aggregate activity and server quiz totals without emails/account IDs/answers. Interest ratios use current likes among the same observed viewers, not mismatched all-time totals. Counts remain partial observations, not proof of learning. The [phone/admin checklist](likes-and-engagement-guide.md) remains open.

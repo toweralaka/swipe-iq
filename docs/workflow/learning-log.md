@@ -81,3 +81,13 @@ The owner clarified the experience before further milestone work: funny standalo
 A random sort on every page can repeat or skip posts. We use one mix token for the entire scroll, a cursor for the last position, and a publication cutoff. A fresh online feed gets a new mix; offline reads reuse the saved one. Tests check stable pages, withdrawal between pages, and saved cursor pages.
 
 Removing a quiz button also removes a recovery path. We added unfinished dares to private progress so saved answers remain reachable. One-card publishing applies to new publications; existing cards, IDs, reviews, and results stay intact. Seed changes affect only newly created drafts. This is how a product decision becomes concrete rules, compatibility handling, tests, and updated instructions. Fun and incidental learning still need observation with real users; passing tests cannot establish them.
+
+## Milestone 6 — 2026-10-13: likes and useful evidence
+
+A toggle request means “change whatever the server currently has,” which can undo a like if a lost reply is retried. Sending an explicit desired value, true or false, makes repeated requests safe. The phone waits for confirmation. If the reply is uncertain, it reads the saved state before another change. Tests deliberately lose a reply after the simulated server accepts it.
+
+The stable card identity links a like across corrections without attaching it to unrelated posts. Database uniqueness handles duplicate requests; supported writes validate publication and the authenticated account. We reused the existing account-bound request check through a shared auth helper rather than creating a second login path.
+
+A pilot needs clear definitions more than impressive counts. A view here means a connected post was mostly visible for a second. Repeated sightings count once per user/post/day. Failed/offline events are discarded, so reports are incomplete. We separate current like totals from the report window and provide likes among that window's observed viewers for a comparable ratio. Quiz totals come from accepted server attempts.
+
+Reports contain aggregate counts without candidate emails, usernames, IDs, or answer keys and require a staff export permission. This limits accidental disclosure without claiming small groups are anonymous. Desktop tests verify rules, permissions, and output fields; phone timing and PostgreSQL simultaneous writes still need separate checks. The workflow lesson is to define a measurement, handle retries, constrain the database, test failure cases, and document what the numbers cannot tell you.

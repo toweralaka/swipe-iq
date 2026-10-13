@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 export const palette = { ink: '#172723', cream: '#F7F6EE', lime: '#D8FA72', muted: '#53615C', dark: '#101E1A' };
-export function Chip({ label, onPress, dark = false }: { label: string; onPress: () => void; dark?: boolean }) {
- return <Pressable accessibilityRole="button" onPress={onPress} style={[look.chip, dark && { backgroundColor: '#ffffff14', borderColor: '#ffffff44' }]}><Text style={[look.chipText, dark && { color: '#fff' }]}>{label}</Text></Pressable>;
+export function Chip({ label, onPress, dark = false, disabled = false, selected }: { label: string; onPress: () => void; dark?: boolean; disabled?:boolean; selected?:boolean }) {
+ return <Pressable accessibilityRole="button" accessibilityState={{disabled,selected}} disabled={disabled} onPress={onPress} style={[look.chip, disabled && {opacity:0.5}, dark && { backgroundColor: '#ffffff14', borderColor: '#ffffff44' }]}><Text style={[look.chipText, dark && { color: '#fff' }]}>{label}</Text></Pressable>;
 }
 export const look = StyleSheet.create({
  screen: { flex: 1, backgroundColor: palette.cream },
