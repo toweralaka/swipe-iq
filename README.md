@@ -2,9 +2,9 @@
 
 Swipe-IQ is a fun feed for Nigerian JAMB Biology candidates. Funny posts weave Biology into a relaxing scroll, using text, images, audio, or video. AI drafts the content; a human checks it before an admin publishes it.
 
-The phone app now lets invited users sign in, tick subjects such as Biology (JAMB), and swipe through a colourful full-screen feed. Search finds posts within the chosen subjects. Data saver starts on. Viewed text and loaded media are saved on the phone, up to 100 MB. Posts appear in a random mix, with no lesson sequence. Occasional in-feed dares offer an optional three-question solo play. Swipe past them whenever you like. Scores and explanations are private. Friend challenges and likes will come in later milestones. New posts have one content card; carousels are future work.
+The phone app now lets invited users sign in, tick subjects such as Biology (JAMB), and swipe through a colourful full-screen feed. Search finds posts within the chosen subjects. Data saver starts on. Viewed text and loaded media are saved on the phone, up to 100 MB. Posts appear in a random mix, with no lesson sequence. Occasional in-feed dares offer an optional three-question solo play. Swipe past them whenever you like. Scores and explanations are private. Private likes now let users show interest. Staff can download an aggregate pilot report. Friend challenges will come in a later milestone. New posts have one content card; carousels are future work.
 
-The code has desktop checks. Real email links in an installed Android app and the media/offline and quiz features still need phone checks. See [milestone status](docs/milestones.md).
+The code has desktop checks. Real email links in an installed Android app and the media, offline, quiz, and like features still need phone checks. See [milestone status](docs/milestones.md).
 
 ## Start here
 
@@ -12,6 +12,7 @@ The code has desktop checks. Real email links in an installed Android app and th
 - [Sign in using a local test link or real email](docs/authentication-setup.md)
 - [Use and test the phone feed](docs/feed-phone-guide.md)
 - [Play quizzes and check progress](docs/quiz-phone-guide.md)
+- [Use likes and download the pilot report](docs/likes-and-engagement-guide.md)
 - [Review and publish content](docs/content/editorial-workflow.md)
 - [Approved plan](docs/implementation-plan.md), [architecture](docs/architecture.md), and [student API](docs/api/student-access.md)
 
@@ -58,6 +59,21 @@ These commands use PowerShell. Start inside the swipe-iq folder after completing
 
 A published post in an active exam can now appear in the phone feed. Refresh at the end for a new random mix. Existing multi-card content is preserved; its cards still appear individually. Published versions are locked. To correct one, make a replacement draft, review it, and publish it. The [editorial guide](docs/content/editorial-workflow.md) explains the full process.
 
+## Why a new subject may not appear
+
+**The app only lists subjects with at least one available published post in an active examination.** Adding a subject in admin alone is not enough. This keeps users from choosing subjects with empty feeds.
+
+To make a subject appear:
+
+1. Under **Editorial → Examinations**, check that its examination is active.
+2. Under **Subjects**, check that the subject belongs to that examination.
+3. Under **Topics**, add a topic belonging to the subject.
+4. Create a learning unit and draft version using that topic. Add one content card and three questions, then complete the human review described above.
+5. Run **Publish selected reviewed drafts** and confirm the status is **Published**. Drafts and withdrawn versions do not qualify. A subject disappears if it has no remaining available published content.
+6. While the phone is connected, open **Settings → Change my subjects** to reload the list. If it is already open, leave it and reopen it. **Offline · showing saved subjects** means the list may be out of date.
+
+For developers: this filtering happens in the backend's SubjectList in backend/editorial/student_api.py. It uses available_versions(), which restricts content to the latest published version per unit in an active exam. Creating a subject does not require rebuilding Expo Go; the app needs a fresh response from the backend.
+
 ## Student: open your feed on the phone
 
 1. Connect the Android phone and computer to the same private Wi-Fi.
@@ -74,9 +90,13 @@ A published post in an active exam can now appear in the phone feed. Refresh at 
 6. Ask the admin to invite your email. Enter it and tap **Send my login link**. For local testing, use the [local email steps](docs/authentication-setup.md#local-development-without-an-email-provider): the default setup saves the message on the computer rather than sending it to your inbox.
 7. Open the link using the method in that guide and tap **Confirm sign-in**. Check that your email appears on the home screen.
 8. Tick **Biology (JAMB)** on the subject screen, then tap **Let’s scroll**. Your feed opens right away. Swipe up for another post. Only subjects with published content appear; extra exams such as SSCE are future work.
-9. Read each post. Tap **Read more** for the full text, transcripts, sources, and the idea behind the joke. Tap **Search**, enter a word such as cells, and submit to find related posts in your subjects. With data saver on, tap **Load image**, **Load audio**, or **Load video** to fetch a file. Its size is shown first. Audio and video need a separate tap on **Play** and stop when you leave the card or app. Text and transcripts remain readable without loading the file.
+9. Read each post. Tap **♡ Like** to save a private like, or **♥ Liked** to remove it. Wait for confirmation; if it fails, use **Retry like check**. Likes need a connection and do not change your feed order. Tap **Read more** for the full text, transcripts, sources, and the idea behind the joke. Tap **Search**, enter a word such as cells, and submit to find related posts in your subjects. With data saver on, tap **Load image**, **Load audio**, or **Load video** to fetch a file. Its size is shown first. Audio and video need a separate tap on **Play** and stop when you leave the card or app. Text and transcripts remain readable without loading the file.
 10. An occasional purple dare card appears between posts. Tap **I’m game ✦** to try three questions, or swipe past it / tap **Keep scrolling ↑**. Playing is optional. You need a connection to submit. Saved answers and the submission ID make retries count only once. Friend challenges are clearly marked as coming later.
 11. Tap **My progress** on the result page or under **Settings** to resume unfinished dares and see posts tried, first-play scores, and earlier results. Repeat practice is labelled separately.
 12. Tap **Subjects** to change your mix. Tap **Settings** to change data saver, clear saved posts/files, or sign out. Data saver off loads visible images automatically; audio and video still wait for you. Clearing saved posts keeps unfinished quiz answers. Signing out removes unfinished answers, but completed history stays on the server.
 
 If no subjects or posts appear, ask the admin to check publication and the exam's active setting. Refresh the feed after publishing. For slow Wi-Fi, offline reading, and playback checks, follow the [phone feed guide](docs/feed-phone-guide.md).
+
+## Admin: see interest and activity
+
+Open **Engagement → Engagement events** in the staff admin, then click **Download 7-day aggregate report**. A superuser has access; other staff need view-event and export-report permissions. The report includes grouped views, likes, optional dare choices, and quiz totals without candidate emails or account IDs. See the [report guide](docs/likes-and-engagement-guide.md) for steps and how to read the numbers. Failed or offline events are not uploaded later, so these are partial pilot counts, not proof of learning.

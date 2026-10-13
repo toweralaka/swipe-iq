@@ -8,7 +8,7 @@ export default function Settings() {
  const { candidate, ready, logout } = useSession(); const { dataSaver, toggleDataSaver, clearCache } = useFeed(); const [busy, setBusy] = useState(false); const [message, setMessage] = useState('');
  if (ready && !candidate) return <Redirect href="/" />;
  async function act(operation: () => Promise<void>, done: string) { setBusy(true); setMessage(''); try { await operation(); setMessage(done); } catch(problem) { setMessage(problem instanceof Error ? problem.message : 'Could not finish. Try again.'); } finally { setBusy(false); } }
- return <Page><Text style={styles.title}>Your space</Text><Text style={styles.text}>{candidate?.email}</Text>
+ return <Page><Text style={styles.title}>Your space</Text><Text style={styles.text}>{candidate?.email}</Text><Text style={styles.text}>Your likes are private. During the pilot, we count viewed posts and optional dare choices to help improve the feed.</Text>
  <Action title="My progress" onPress={() => router.push('/progress')} />
  <Action title="Change my subjects" disabled={busy} onPress={() => router.replace('/subjects')} />
  <Text style={styles.text}>Data saver is {dataSaver ? 'on. Files wait for you to tap Load.' : 'off. Visible images load automatically.'} Audio and video always wait for Play.</Text>
