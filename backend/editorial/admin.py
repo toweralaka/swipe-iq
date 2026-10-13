@@ -27,7 +27,8 @@ class FrozenInline(admin.StackedInline):
 
 class CardInline(FrozenInline):
     model = Card
-    max_num = 3
+    max_num = 1
+    verbose_name_plural = "Content card — one per post; keep existing history"
 
 
 class QuestionInline(FrozenInline):

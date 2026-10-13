@@ -37,3 +37,4 @@
 - Keep approved scope in docs/implementation-plan.md; record changed decisions explicitly and obtain approval.
 - Update docs/milestones.md with evidence and remaining dependencies; capture reusable lessons in docs/workflow/learning-log.md.
 - Add skills only for proven repeatable workflows. Add MCP integrations only for a justified concrete need.
+- Update README based on the state of the app

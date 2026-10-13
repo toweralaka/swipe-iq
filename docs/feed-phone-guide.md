@@ -34,7 +34,9 @@ Only subjects with available published posts appear. Your choices are remembered
 
 ## Swipe and explore
 
-- Swipe **up** for the next post; swipe down to go back through loaded posts.
+- Swipe **up** for the next post; swipe down to go back through loaded posts. Posts are mixed randomly within your subjects, with no lesson order. Refresh at the end for a new online mix.
+- New posts have one content card. Carousels are future work. Earlier multi-card content is preserved and each old card is shown separately.
+- Purple dare cards occasionally appear between posts. Swipe past, tap **Keep scrolling ↑**, or tap **I’m game ✦** for an optional solo play. Friend challenges are coming later. Dares do not appear after every post.
 - Each post fills the feed area, with a different colour as you move through it.
 - Tap **Read more** for the full text, transcripts, sources, and the idea behind the joke. Long text is shortened in the swipe view so buttons remain reachable.
 - Tap **Subjects** to change your mix. Tap **Settings** for data saver, saved copies, and sign-out.
@@ -101,6 +103,8 @@ Write down the date, phone model, Android version, Expo Go or installed build, a
 | Subject choice | Checkboxes show Biology (JAMB); no choices means Continue is disabled; saved choices belong to this account. |
 | First feed | Continue goes straight to posts, with no topic/lesson menu. |
 | Swipe | One post fills the feed area; swipe up advances; more pages load near the end; the end is clear. |
+| Random mix | Refresh gets a new mix; loading more does not reshuffle already loaded posts. Small collections may repeat the same order by chance. |
+| Optional dares | Dares appear in the feed with varied spacing; skipping works; no forced post-ending quiz; media pauses on a dare. |
 | Search | Related published posts appear within selected subjects; Clear restores the mix; no matches and failed requests are distinct. |
 | Text | The short view is readable; Read more contains the complete explanation. |
 | Image | Data saver on waits for Load; off loads visible images. Descriptions remain available. |
@@ -117,7 +121,7 @@ These checks remain pending until someone records them on a physical phone. Desk
 
 **No subjects or posts:** ask the admin to check that a human-reviewed version says Published and its exam is active. Drafts are hidden. Return to the subject picker or refresh the feed after publication.
 
-**Feed returns an error after updating:** restart Django as well as Expo. The new feed/search endpoint must be running on the backend.
+**Feed returns an error after updating:** restart Django as well as Expo and refresh once while connected so the updated feed format is saved. The new feed/search endpoint must be running on the backend.
 
 **Cannot reach server:** check Wi-Fi, the Django terminal, computer IPv4 address, allowed hosts, and firewall steps in [setup](setup.md). Restart Expo after changing mobile/.env.
 
@@ -140,3 +144,7 @@ This can happen if Expo was running when the media packages were installed.
 4. Close the app in Expo Go, then scan the new QR code. Wait for the fresh bundle.
 
 For an installed development build, use npm.cmd start -- --dev-client --clear instead. An old installed build may also need rebuilding to include the new native packages.
+
+## Quick play and progress
+
+Accept a purple in-feed dare with **I’m game ✦**, or skip it and keep scrolling. Answer three questions and submit to see your score and explanations. Open **Settings → My progress** for history and unfinished dares. There are no quiz buttons on ordinary posts. Follow the [quiz phone guide](quiz-phone-guide.md) for setup, saved answers, retries, and the phone checklist.

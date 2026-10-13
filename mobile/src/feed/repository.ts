@@ -1,6 +1,6 @@
 import { ApiError, NetworkError } from '../api/student.ts';
 import { ViewedCache, type Lease } from '../cache/store.ts';
-import { lessonFrom, pageFrom, type Media } from './types.ts';
+import { lessonFrom, feedPageFrom, type Media } from './types.ts';
 export type ReadResult<T> = { value: T; saved: boolean; offline: boolean };
 export type MediaBytes = { bytes: Uint8Array; extension: 'png' | 'jpg' | 'mp3' | 'wav' | 'mp4' };
 export class FeedRepository {
@@ -34,7 +34,7 @@ export class FeedRepository {
     await this.cache.put(this.lease, 'selection:subjects', new TextEncoder().encode(JSON.stringify(ids)));
   }
   async feed(path: string) {
-    const result = await this.read(path, value => pageFrom(value, lessonFrom));
+    const result = await this.read(path, feedPageFrom);
     result.value.results = result.value.results.filter(lesson => !this.unavailable.has('units/' + lesson.id + '/'));
     if (!result.offline) for (const lesson of result.value.results) {
       try { await this.cache.put(this.lease, 'json:units/' + lesson.id + '/', new TextEncoder().encode(JSON.stringify(lesson))); } catch { result.saved = false; }

@@ -1,16 +1,17 @@
 # Swipe-IQ
 
-Swipe-IQ helps Nigerian JAMB Biology candidates revise with short lessons. Lessons can include text, images, audio, and video. AI drafts the content; a human checks it before an admin publishes it.
+Swipe-IQ is a fun feed for Nigerian JAMB Biology candidates. Funny posts weave Biology into a relaxing scroll, using text, images, audio, or video. AI drafts the content; a human checks it before an admin publishes it.
 
-The phone app now lets invited users sign in, tick subjects such as Biology (JAMB), and swipe through a colourful full-screen feed. Search finds posts within the chosen subjects. Data saver starts on. Viewed text and loaded media are saved on the phone, up to 100 MB. Quizzes, likes, and challenges will come in later milestones.
+The phone app now lets invited users sign in, tick subjects such as Biology (JAMB), and swipe through a colourful full-screen feed. Search finds posts within the chosen subjects. Data saver starts on. Viewed text and loaded media are saved on the phone, up to 100 MB. Posts appear in a random mix, with no lesson sequence. Occasional in-feed dares offer an optional three-question solo play. Swipe past them whenever you like. Scores and explanations are private. Friend challenges and likes will come in later milestones. New posts have one content card; carousels are future work.
 
-The code has desktop checks. Real email links in an installed Android app and the new media/offline features still need phone checks. See [milestone status](docs/milestones.md).
+The code has desktop checks. Real email links in an installed Android app and the media/offline and quiz features still need phone checks. See [milestone status](docs/milestones.md).
 
 ## Start here
 
 - [Set up the backend and phone app](docs/setup.md)
 - [Sign in using a local test link or real email](docs/authentication-setup.md)
 - [Use and test the phone feed](docs/feed-phone-guide.md)
+- [Play quizzes and check progress](docs/quiz-phone-guide.md)
 - [Review and publish content](docs/content/editorial-workflow.md)
 - [Approved plan](docs/implementation-plan.md), [architecture](docs/architecture.md), and [student API](docs/api/student-access.md)
 
@@ -48,14 +49,14 @@ These commands use PowerShell. Start inside the swipe-iq folder after completing
    ~~~
 
 5. Open http://127.0.0.1:8000/admin/ on the computer. Sign in with your staff account. Under **Editorial → Learning unit versions**, open a draft.
-6. Check that the topic belongs to **JAMB Biology**. Read the cards and questions, fix mistakes, and enter the teaching reference you checked. Each lesson needs 1–3 cards and exactly three questions. Each question needs four choices and an explanation. The phone shows the cards now; quiz screens come later.
+6. Check that the topic belongs to **JAMB Biology**. Read the cards and questions, fix mistakes, and enter the teaching reference you checked. Each new post needs exactly one content card and three questions for optional dares. Each question needs four choices and an explanation. The feed shows the post. Its questions can appear in a separate optional dare.
 7. For media, add a file under **Media assets** and attach it to a card. Add the description, transcript, captions, source, and file details required for that format. Play or view it before confirming its details. See [media preparation](docs/content/media-preparation.md) for the limits.
 8. Complete the six review checks: accuracy, syllabus, humour, accessibility, rights, and references. Add your review notes and save. Confirm only checks a human has actually done.
 9. Return to the lesson list, tick the reviewed draft, choose **Publish selected reviewed drafts**, and click **Go**. Your account needs permission to publish; a local superuser has it.
 10. Check that the status says **Published**. If there is an error, fix the listed problem and try again. Clicking Save alone does not publish a lesson.
 11. Under **Accounts → Invitations**, add the student's email and leave it active. Students use email links, not your staff username and password.
 
-A published lesson in an active exam can now appear in the phone feed. Published versions are locked. To correct one, make a replacement draft, review it, and publish it. The [editorial guide](docs/content/editorial-workflow.md) explains the full process.
+A published post in an active exam can now appear in the phone feed. Refresh at the end for a new random mix. Existing multi-card content is preserved; its cards still appear individually. Published versions are locked. To correct one, make a replacement draft, review it, and publish it. The [editorial guide](docs/content/editorial-workflow.md) explains the full process.
 
 ## Student: open your feed on the phone
 
@@ -74,6 +75,8 @@ A published lesson in an active exam can now appear in the phone feed. Published
 7. Open the link using the method in that guide and tap **Confirm sign-in**. Check that your email appears on the home screen.
 8. Tick **Biology (JAMB)** on the subject screen, then tap **Let’s scroll**. Your feed opens right away. Swipe up for another post. Only subjects with published content appear; extra exams such as SSCE are future work.
 9. Read each post. Tap **Read more** for the full text, transcripts, sources, and the idea behind the joke. Tap **Search**, enter a word such as cells, and submit to find related posts in your subjects. With data saver on, tap **Load image**, **Load audio**, or **Load video** to fetch a file. Its size is shown first. Audio and video need a separate tap on **Play** and stop when you leave the card or app. Text and transcripts remain readable without loading the file.
-10. Tap **Subjects** to change your mix. Tap **Settings** to change data saver, clear saved posts/files, or sign out. Data saver off loads visible images automatically; audio and video still wait for you.
+10. An occasional purple dare card appears between posts. Tap **I’m game ✦** to try three questions, or swipe past it / tap **Keep scrolling ↑**. Playing is optional. You need a connection to submit. Saved answers and the submission ID make retries count only once. Friend challenges are clearly marked as coming later.
+11. Tap **My progress** on the result page or under **Settings** to resume unfinished dares and see posts tried, first-play scores, and earlier results. Repeat practice is labelled separately.
+12. Tap **Subjects** to change your mix. Tap **Settings** to change data saver, clear saved posts/files, or sign out. Data saver off loads visible images automatically; audio and video still wait for you. Clearing saved posts keeps unfinished quiz answers. Signing out removes unfinished answers, but completed history stays on the server.
 
 If no subjects or posts appear, ask the admin to check publication and the exam's active setting. Refresh the feed after publishing. For slow Wi-Fi, offline reading, and playback checks, follow the [phone feed guide](docs/feed-phone-guide.md).

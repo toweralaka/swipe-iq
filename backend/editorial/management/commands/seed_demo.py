@@ -51,8 +51,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"Aligned legacy mapping for {unit.key}; content remains unreviewed.")
                 self.stdout.write(f"Preserved existing {unit.key} v1 content.")
                 continue
-            for position, text in enumerate(texts, 1):
-                Card.objects.create(version=version, position=position, text=text)
+            Card.objects.create(version=version, position=1, text="\n\n".join(texts))
             questions = [
                 ("Which structure occurs in both typical plant and animal cells?", ["Cell membrane", "Cell wall", "Chloroplast", "Large permanent central vacuole"], "a", "Both have a cell membrane that regulates movement into and out of the cell."),
                 ("Which statement about chloroplasts is most accurate?", ["Every plant cell contains them", "Photosynthetic plant cells contain them", "Animal cells use them for respiration", "They replace the nucleus"], "b", "Chloroplasts carry out photosynthesis; non-photosynthetic plant cells may lack them."),
