@@ -125,9 +125,10 @@ class MediaAdmin(NoBulkDeleteAdmin):
 @admin.register(LearningUnit)
 class UnitAdmin(NoBulkDeleteAdmin):
     list_display = ["key", "author"]
+    readonly_fields = ["author"]
 
     def save_model(self, request, obj, form, change):
-        if not change and not obj.author_id:
+        if not change:
             obj.author = request.user
         super().save_model(request, obj, form, change)
 

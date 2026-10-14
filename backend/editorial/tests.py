@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import Card, LearningUnitVersion, MediaAsset, Question
+from .models import Card, LearningUnit, LearningUnitVersion, MediaAsset, Question
 from .services import CHECKS, publish, replacement_draft, withdraw
 
 
@@ -192,6 +192,24 @@ class EditorialTests(TestCase):
         self.assertEqual(response["Cache-Control"], "private, no-store")
         response.close()
         self.assertEqual(self.client.get("/private-media/" + media.file.name).status_code, 404)
+
+    def test_admin_sets_author_and_preserves_it_on_edit_despite_posted_author(self):
+        admin_user = get_user_model().objects.create_superuser("author-admin", "author@example.com", "test-only-password")
+        other = get_user_model().objects.create_user("other-author")
+        self.client.force_login(admin_user)
+        add_url = reverse("admin:editorial_learningunit_add")
+        self.assertNotIn("author", self.client.get(add_url).context["adminform"].form.fields)
+        response = self.client.post(add_url, {"key": "admin-authored-fixture", "author": other.pk, "_save": "Save"})
+        self.assertEqual(response.status_code, 302)
+        unit = LearningUnit.objects.get(key="admin-authored-fixture")
+        self.assertEqual(unit.author_id, admin_user.pk)
+        self.client.force_login(get_user_model().objects.create_superuser("editing-admin", "editing@example.com", "test-only-password"))
+        change_url = reverse("admin:editorial_learningunit_change", args=[unit.pk])
+        self.assertNotIn("author", self.client.get(change_url).context["adminform"].form.fields)
+        response = self.client.post(change_url, {"key": "admin-authored-renamed", "author": other.pk, "_save": "Save"})
+        self.assertEqual(response.status_code, 302)
+        unit.refresh_from_db()
+        self.assertEqual(unit.author_id, admin_user.pk)
 
     def test_admin_rejects_student_and_readonly_history(self):
         student = get_user_model().objects.create_user("student")

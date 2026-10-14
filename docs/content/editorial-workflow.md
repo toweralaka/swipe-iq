@@ -64,3 +64,7 @@ Seed reruns preserve existing content, including older multi-card drafts. They d
 ## AI-1 text drafts and optional questions
 
 Staff can now request a new text draft through admin, with supplied source excerpts and optional questions. Follow [AI setup](../ai-generation-setup.md). All review confirmations remain unset and publication is still an explicit human action. Posts can have zero or exactly three questions; only complete published quizzes supply dares. One or two questions block publication. Images/memes/videos still require manual preparation until their AI stages are separately approved.
+
+## Who is recorded as author?
+
+When you create a learning unit in admin, the app records your logged-in staff account as its author. There is no author picker. Editing an existing unit keeps its original author. AI-created drafts already record the staff member who requested generation. Seeded sample posts keep their existing author value; they are not assigned to whoever later edits them.
