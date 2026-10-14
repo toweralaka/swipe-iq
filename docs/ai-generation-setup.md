@@ -42,7 +42,7 @@ AI-1 adds text drafts and optional questions. Images, memes, and videos are late
 2. Choose a topic. The topic label includes its subject and exam; those values become part of the saved source snapshot.
 3. Enter one learning objective and the idea you want. For example, ask for a memorable membrane/bouncer analogy that clearly explains its scientific limit. This is a content brief, not verified teaching material.
 4. Enter the official syllabus link and relevant excerpt. Paste the checked teaching reference and a short source excerpt or your checked notes. A URL alone is not enough: the worker does not open links. Do not paste whole books or candidate details.
-5. Leave the format as **Text**. Leave **Generate three quiz questions** unchecked for a normal post, or tick it for an optional dare-ready quiz.
+5. Leave the format as **Text** and choose the **AI model** from the dropdown. Leave **Generate three quiz questions** unchecked for a normal post, or tick it for an optional dare-ready quiz.
 6. Click **Generate draft**. The page opens a saved request with **Queued** status. It has not contacted OpenAI yet. Repeated submission of this same form points to the same job. To request a different post, open a new form.
 
 ## Run the worker
@@ -107,3 +107,16 @@ Automated checks use mocked provider responses and make no paid calls. Complete 
 6. Check another staff user without generation/view permission cannot request or inspect results. Confirm the normal phone account cannot access staff job pages.
 
 Record failures before accepting AI-1. Image/meme/video generation remains unimplemented and needs separate stage approval.
+
+## Choose models in admin
+
+AI_TEXT_MODEL is the default text model. To offer more choices, add AI_TEXT_MODELS to your private backend .env as a comma-separated list of model IDs your API project can use. For example:
+
+~~~dotenv
+AI_TEXT_MODEL=gpt-5.4-mini
+AI_TEXT_MODELS=gpt-5.4-mini
+~~~
+
+Add another verified model ID to that list when you want to offer a second choice. Restart Django and the worker after changing settings. If AI_TEXT_MODELS is empty, the dropdown offers only AI_TEXT_MODEL. Keep the default in your allowed list. Model access and pricing must be checked with your provider; listing a model does not grant access.
+
+Each new request saves the chosen model. Changing settings does not change queued requests. Text models are the only choices in AI-1; image and video stages will need their own allowed lists and provider paths.

@@ -7,13 +7,13 @@ from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
 from editorial.models import LearningUnit, LearningUnitVersion, Card, Question
-from .configuration import require_configuration
+from .configuration import require_configuration, models_for_format
 from .models import DailyQuota, GenerationJob
 from .prompts import PROMPT_VERSION
 from .provider import generate_text, GenerationFailure, UncertainGeneration
 from .validation import validate_output
 
-INPUT_FIELDS = ["topic", "objective", "brief", "syllabus_reference", "syllabus_excerpt", "source_reference", "source_excerpt", "format", "include_questions"]
+INPUT_FIELDS = ["topic", "objective", "brief", "syllabus_reference", "syllabus_excerpt", "source_reference", "source_excerpt", "format", "include_questions", "model_name"]
 
 
 def require_generator(user):
@@ -30,6 +30,7 @@ def topic_context(topic):
 @transaction.atomic
 def enqueue(user, request_id, values):
     require_generator(user)
+    values = {**values, "model_name": values.get("model_name", settings.AI_TEXT_MODEL)}
     normalized = {key: values[key].pk if key == "topic" else values[key] for key in INPUT_FIELDS}
     fingerprint = hashlib.sha256(json.dumps(normalized, sort_keys=True).encode()).hexdigest()
     existing = GenerationJob.objects.filter(pk=request_id).first()
@@ -42,12 +43,14 @@ def enqueue(user, request_id, values):
     require_configuration()
     if values["format"] != "text":
         raise ValidationError("Only text generation is available in AI-1.")
+    if values["model_name"] not in models_for_format(values["format"]):
+        raise ValidationError("Choose an allowed model for this content format. Refresh the generation form.")
     day = timezone.localdate()
     DailyQuota.objects.get_or_create(day=day)
     if not DailyQuota.objects.filter(day=day, used__lt=settings.AI_DAILY_JOB_LIMIT).update(used=F("used") + 1):
         raise ValidationError("Today's generation limit has been reached. Try again tomorrow.")
     return GenerationJob.objects.create(id=request_id, creator=user, context=topic_context(values["topic"]),
-                                         fingerprint=fingerprint, model_name=settings.AI_TEXT_MODEL, prompt_version=PROMPT_VERSION, **values)
+                                         fingerprint=fingerprint, prompt_version=PROMPT_VERSION, **values)
 
 
 @transaction.atomic

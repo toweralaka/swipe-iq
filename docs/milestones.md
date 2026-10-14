@@ -274,3 +274,15 @@ Final AI-1 checks: Android export and online Expo dependency alignment pass. All
 ### Owner-reported Expo Go test — 2026-10-14
 
 The owner confirmed that mobile use was tested successfully in Expo Go. This records a successful phone-use check; no individual test cases or device details were supplied. It does not establish that every offline, recovery, accessibility, or account-switch scenario passed. Live AI generation and human content review still need separate confirmation; remote CI and PostgreSQL checks remain open.
+
+### Admin field guidance — 2026-10-14
+
+Added plain-language help to all content generation request fields, including Biology examples, source instructions, optional questions, saved status, and result details. The create form inherits model help so create and saved-request pages use the same explanations. Added and applied a help-text-only migration; request behavior and stored content are unchanged. Django checks, migration-drift checks, and all 20 generation tests pass. Verified that every visible generation form field and every request model field has help text.
+
+### Admin model selection — 2026-10-14
+
+Added a text-model dropdown using the backend AI_TEXT_MODELS list, with AI_TEXT_MODEL as the default and single-choice fallback. Requests save the chosen model; repeated submissions include that choice in their duplicate check. The server rejects unlisted models. Future media stages remain disabled. All 21 generation tests, Django checks, and migration-drift checks pass. No provider calls were made.
+
+### Random feed across subjects — 2026-10-14
+
+Confirmed the existing server shuffles the combined selected-subject content pool, and mobile preserves that order. Extended the feed regression test to cover two subjects, varied mixes, stable repeated requests, and orders that are not grouped by subject. All 25 account/API tests pass. Updated the phone guide with refresh and offline behavior. No feed algorithm or subject-selection behavior changed.

@@ -24,7 +24,7 @@ from .provider import generate_text, GenerationFailure, UncertainGeneration
 from .services import enqueue, import_draft, process_one, recover_interrupted, INPUT_FIELDS
 from .worker_lock import worker_lock
 
-AI_SETTINGS = dict(AI_GENERATION_ENABLED=True, OPENAI_API_KEY="fixture-not-a-real-key", AI_TEXT_MODEL="fixture-model", AI_DAILY_JOB_LIMIT=5, AI_REQUEST_TIMEOUT=60)
+AI_SETTINGS = dict(AI_TEXT_MODELS=[], AI_GENERATION_ENABLED=True, OPENAI_API_KEY="fixture-not-a-real-key", AI_TEXT_MODEL="fixture-model", AI_DAILY_JOB_LIMIT=5, AI_REQUEST_TIMEOUT=60)
 
 
 def output(questions=False):
@@ -52,7 +52,7 @@ class GenerationTests(TestCase):
         return {"topic": self.topic, "objective": "Explain membrane function.", "brief": "A funny club bouncer analogy.",
             "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Biology.pdf", "syllabus_excerpt": "Fixture objective: relate cell structures to functions.",
             "source_reference": "Checked test fixture, not real review evidence.", "source_excerpt": "Cell membranes regulate movement into and out of cells.",
-            "format": "text", "include_questions": questions}
+            "format": "text", "include_questions": questions, "model_name": "fixture-model"}
 
     def job(self, questions=False):
         return enqueue(self.staff, uuid.uuid4(), self.values(questions))
@@ -64,6 +64,24 @@ class GenerationTests(TestCase):
         values["topic"] = self.topic.pk
         values["request_token"] = page.context["form"].initial["request_token"]
         return values
+
+    @override_settings(AI_TEXT_MODELS=["fixture-model", "other-text-model"])
+    def test_model_dropdown_choice_is_saved_and_unlisted_models_rejected(self):
+        page = self.browser.get(reverse("admin:generation_generationjob_add"))
+        self.assertEqual(list(page.context["form"].fields["model_name"].choices),
+                         [("fixture-model", "fixture-model"), ("other-text-model", "other-text-model")])
+        values = self.form()
+        values["model_name"] = "other-text-model"
+        self.assertEqual(self.browser.post(reverse("admin:generation_generationjob_add"), values).status_code, 302)
+        job = GenerationJob.objects.get()
+        self.assertEqual(job.model_name, "other-text-model")
+        with self.assertRaises(ValidationError):
+            enqueue(self.staff, uuid.uuid4(), {**self.values(), "model_name": "unlisted-model"})
+        with self.assertRaises(ValidationError):
+            enqueue(self.staff, job.pk, {**self.values(), "model_name": "fixture-model"})
+        with patch("generation.services.generate_text", return_value=response()) as provider:
+            process_one()
+            self.assertEqual(provider.call_args.args[0].model_name, "other-text-model")
 
     def test_admin_submits_a_saved_job_without_calling_provider_and_double_click_reuses_it(self):
         values = self.form()

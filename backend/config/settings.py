@@ -82,6 +82,7 @@ ANDROID_CERT_FINGERPRINTS = [value.strip() for value in os.getenv("ANDROID_CERT_
 AI_GENERATION_ENABLED = os.getenv("AI_GENERATION_ENABLED", "false").lower() == "true"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 AI_TEXT_MODEL = os.getenv("AI_TEXT_MODEL", "").strip()
+AI_TEXT_MODELS = [model.strip() for model in os.getenv("AI_TEXT_MODELS", "").split(",") if model.strip()]
 def _ai_integer(name, default):
     try:
         return int(os.getenv(name, default))

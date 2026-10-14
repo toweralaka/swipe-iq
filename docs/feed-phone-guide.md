@@ -158,3 +158,7 @@ The pilot counts connected, mostly-visible posts and optional dare choices once 
 ## Posts without a quiz
 
 A published post can have no questions. It still appears in the feed and subject list. Only posts with three reviewed questions can supply a dare. Dares remain optional; their placement varies. Saved posts from an older app version may stay readable without being used for dares until refreshed.
+
+## Random posts across your subjects
+
+Posts from all your selected subjects share one random mix. They are not grouped or sorted by subject. Refresh online to request a new mix; scrolling keeps that mix stable. Offline reading keeps the saved order. Random order can still place two posts from the same subject together, especially when one subject has many more published posts. Only selected subjects with published content contribute posts.
