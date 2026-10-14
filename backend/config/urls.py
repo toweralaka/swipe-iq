@@ -1,6 +1,7 @@
 from engagement.views import LikeView, EventView
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import TemplateView
 from health.views import health
 from editorial.views import media_preview
 
@@ -10,6 +11,7 @@ from editorial.student_api import ExaminationList, SubjectList, TopicList, UnitL
 from learning.views import QuizView, AttemptList, AttemptResult, ProgressView
 
 urlpatterns = [
+    path("", TemplateView.as_view(template_name="health/landing.html"), name="landing"),
     path("api/v1/units/<int:version_id>/cards/<uuid:identity>/like/", LikeView.as_view()),
     path("api/v1/engagement/events/", EventView.as_view()),
     path("login", login_help),

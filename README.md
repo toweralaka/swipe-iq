@@ -111,3 +111,7 @@ AI-1 generates new text posts only. Images, memes, and videos are later stages. 
 ### More sample drafts
 
 To add five JAMB Government and five JAMB Chemistry posts, run `.\.venv\Scripts\python.exe manage.py seed_jamb_subjects` from backend. Each post has one text card and no quiz. Review and publish them in admin before users can see them. See [sample steps](docs/content/jamb-subject-samples.md).
+
+## Public landing page
+
+Start the Django backend and open http://127.0.0.1:8000/ in a browser. The page describes Swipe-IQ and shows disabled Google Play download buttons labelled Coming soon. No store link is active. The page uses no external fonts, scripts, or images. Its template is backend/health/templates/health/landing.html.
