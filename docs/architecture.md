@@ -93,3 +93,11 @@ The phone displays a server-confirmed state. Requests from quizzes and engagemen
 Engagement events record connected views, dare exposures, and accepted dares. A database constraint permits each signal once per candidate/stable card/Nigeria day. The phone waits one second for a mostly-visible foreground item, except a quick dare acceptance also records its exposure. The delivery guard is bounded to 1,000 in-memory keys; the server remains authoritative. Skipping remains request-free. No third-party analytics or background synchronization is added.
 
 A staff-only admin download returns aggregate JSON for 1–90 Nigeria calendar days. It includes received daily/unique activity by topic/media, current active likes, current likes among observed viewers in the window, and server-recorded first/practice quiz totals. No candidate emails, usernames, account IDs, credentials, selected answers, or keys are exported. Report data can undercount offline/failed events and does not establish learning gains. See the [API contract](api/engagement.md) and [phone/admin guide](likes-and-engagement-guide.md).
+
+## AI-1 generation path
+
+The generation app stores staff requests and a daily quota in the database. Admin queues a request; a separate management-command worker makes the OpenAI call. This avoids keeping an admin page open during generation. A local file lock allows one worker on the configured machine, without adding Redis or Celery. It is not a distributed-worker design.
+
+Requests use signed form IDs and saved fingerprints to avoid duplicate jobs. The provider adapter disables automatic retries. Confirmed output saves before a transaction creates the new draft, so a restart can finish an import without another paid call. Uncertain paid outcomes need human checking. Sources, output, and provider metadata stay in staff-only database records; no generated media storage is introduced in AI-1.
+
+Server settings hold the key, required text model, quota, and timeout. Structured JSON is validated for one text card and zero or three questions; it cannot establish scientific truth. Publication keeps the review gates. The student API sends only quiz_available, never generation metadata or answer keys. Saved posts lacking the new flag remain readable and do not supply dares.

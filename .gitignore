@@ -18,3 +18,6 @@ private_media/
 
 # Local passwordless email outbox (contains single-use secrets)
 .local-email/
+
+# Exclusive local AI worker process lock
+.generation-worker.lock

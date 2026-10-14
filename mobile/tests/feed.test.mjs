@@ -12,7 +12,7 @@ const bytes = size => new Uint8Array(size).fill(65);
 const media = { id: 'a'.repeat(8) + '-aaaa-aaaa-aaaa-' + 'a'.repeat(12), kind: 'image', byte_size: 3, duration_seconds: null, alt_text: 'A cell', transcript: '', captions_vtt: '', attribution: 'teacher' };
 media.url = '/api/v1/media/' + media.id + '/';
 const exam = { id: 1, code: 'jamb', name: 'JAMB' };
-const lesson = { id: 1, unit_key: 'cell', number: 1, title: 'Cell', objective: 'Know cells', topic: { id: 1, name: 'Cells', subject: { id: 1, name: 'Biology', examination: exam } }, cards: [{ identity: 'one', position: 1, text: 'Cell lesson', media }] };
+const lesson = { quiz_available:true, id: 1, unit_key: 'cell', number: 1, title: 'Cell', objective: 'Know cells', topic: { id: 1, name: 'Cells', subject: { id: 1, name: 'Biology', examination: exam } }, cards: [{ identity: 'one', position: 1, text: 'Cell lesson', media }] };
 async function setup(request = async () => lesson, download = async () => ({ bytes: bytes(3), extension: 'png' })) { const drive = disk(); const cache = new ViewedCache(drive, 10000); const lease = await cache.activate('user1'); return { drive, cache, lease, repository: new FeedRepository(cache, lease, request, download) }; }
 test('cache stays within its byte limit and removes the least recently used item', async () => {
  const drive = disk(); const cache = new ViewedCache(drive, 10000); const lease = await cache.activate('a');
@@ -110,4 +110,15 @@ test('saved feed keeps its mix and cursor pages readable offline',async()=>{
  const first=feedPath([1]);await repository.feed(first);const second=nextPath(next,'https://api.example.com',first);await repository.feed(second);offline=true;
  const saved=await repository.feed(first);assert.equal(saved.value.mix,mix);assert.equal(saved.value.next,next);assert.equal((await repository.feed(second)).value.results[0].id,2);
  assert.throws(()=>nextPath(next.replace(mix,'d'.repeat(32)),'https://api.example.com',first+'&mix='+mix));
+});
+
+test('question-free feeds never insert dares and old cached posts stay readable but ineligible',()=>{
+ const old={...lesson};delete old.quiz_available;const parsed=lessonFrom(old);assert.equal(parsed.quiz_available,false);assert.equal(parsed.cards.length,1);assert.throws(()=>lessonFrom({...lesson,quiz_available:'true'}));
+ const posts=Array.from({length:30},(_,i)=>({key:String(i),lesson:{...lesson,quiz_available:false,id:i+1},card:lesson.cards[0]}));
+ assert.equal(withDares(posts,'a'.repeat(32)).filter(e=>e.kind==='dare').length,0);
+});
+test('later quiz-ready pages create only eligible dares without changing previous entries',()=>{
+ const posts=Array.from({length:30},(_,i)=>({key:String(i),lesson:{...lesson,quiz_available:i>=10&&i%2===0,id:i+1},card:lesson.cards[0]}));
+ const first=withDares(posts.slice(0,10),'a'.repeat(32)),all=withDares(posts,'a'.repeat(32));assert.deepEqual(all.slice(0,first.length),first);
+ const dares=all.filter(e=>e.kind==='dare');assert.ok(dares.length>0);assert.ok(dares.every(e=>e.post.lesson.quiz_available));
 });

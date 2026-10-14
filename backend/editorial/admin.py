@@ -34,6 +34,7 @@ class CardInline(FrozenInline):
 class QuestionInline(FrozenInline):
     model = Question
     max_num = 3
+    verbose_name_plural = "Optional quiz — leave empty or add exactly three questions"
 
 
 @admin.register(LearningUnitVersion)

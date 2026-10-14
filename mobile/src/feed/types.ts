@@ -4,7 +4,7 @@ export type Topic = { id: number; name: string; subject: Subject };
 export type Unit = { id: number; unit_key: string; number: number; title: string; objective: string; topic: Topic };
 export type Media = { id: string; kind: 'image' | 'audio' | 'video'; byte_size: number; duration_seconds: number | null; alt_text: string; transcript: string; captions_vtt: string; attribution: string; url: string };
 export type Card = { identity: string; position: number; text: string; media: Media | null };
-export type Lesson = Unit & { cards: Card[] };
+export type Lesson = Unit & { cards: Card[]; quiz_available: boolean };
 export type ListPage<T> = { count: number; next: string | null; results: T[] };
 function record(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('The lesson data could not be read. Try again.');
@@ -26,7 +26,8 @@ export function mediaFrom(value: unknown): Media {
 export function lessonFrom(value: unknown): Lesson {
   const v = record(value);
   if (!Array.isArray(v.cards) || v.cards.length < 1 || v.cards.length > 3) throw new Error('This lesson has no readable cards.');
-  return { ...unitFrom(v), cards: v.cards.map((value, i) => { const c = record(value); if (c.position !== i + 1) throw new Error('Cards are out of order.'); return { identity: text(c.identity), position: id(c.position), text: text(c.text), media: c.media == null ? null : mediaFrom(c.media) }; }) };
+  if(v.quiz_available!==undefined && typeof v.quiz_available!=='boolean') throw new Error('This post could not be loaded. Refresh your feed.');
+  return { ...unitFrom(v), quiz_available: v.quiz_available===true, cards: v.cards.map((value, i) => { const c = record(value); if (c.position !== i + 1) throw new Error('Cards are out of order.'); return { identity: text(c.identity), position: id(c.position), text: text(c.text), media: c.media == null ? null : mediaFrom(c.media) }; }) };
 }
 export function pageFrom<T>(value: unknown, parse: (item: unknown) => T): ListPage<T> {
   const v = record(value);

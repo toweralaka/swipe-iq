@@ -27,8 +27,8 @@ def publish(version_id, reviewer):
     questions = list(version.questions.all())
     if len(cards) != 1 or cards[0].position != 1:
         raise ValidationError("A post needs exactly one content card, numbered 1. Carousels are future work.")
-    if len(questions) != 3 or [q.position for q in questions] != [1, 2, 3]:
-        raise ValidationError("A unit needs exactly three questions numbered 1, 2, 3.")
+    if len(questions) not in [0, 3] or (questions and [q.position for q in questions] != [1, 2, 3]):
+        raise ValidationError("A post can have no questions or exactly three questions numbered 1, 2, 3.")
     for child in cards + questions:
         child.full_clean()
     for card in cards:

@@ -1,7 +1,7 @@
 # Swipe-IQ: JAMB Biology MVP — Approved Implementation Plan
 
 Status: Baseline approved on 2026-10-12; admin AI-generation revision approved on 2026-10-13 (Africa/Lagos).
-This document describes the approved target. AI-1, AI-2, and AI-3 are not started. The current application still uses manual draft entry and requires three questions until AI-1 changes those rules.
+AI-1 implementation was authorized on 2026-10-13. Its code and desktop checks are complete; controlled live generation, human review, and phone acceptance remain pending. AI-2 and AI-3 are not started and require separate approval. Manual drafting remains available; publication permits zero or exactly three reviewed questions.
 This document preserves the approved revised plan. Execution is authorized one milestone at a time; approval of the plan is not approval to implement every milestone.
 
 ## 1. Problem and target audience
@@ -231,7 +231,7 @@ These stages extend the approved scope without renumbering Milestones 0–9. Eac
 
 | Stage | Status | Objective and prerequisites | Tasks and completion criteria |
 | --- | --- | --- | --- |
-| AI-1 — Admin jobs and text | Not started; separate approval required | New-post generation after the editorial/feed/quiz foundations. Provider configuration and a checked source example are needed before live checks. | Admin form, generation permission, job model/migration, queue worker, provider adapter, validated text/optional questions, and quiz eligibility. Admin can generate and review a draft; zero-question posts publish and never supply dares; permission, duplicate, and recovery tests pass. |
+| AI-1 — Admin jobs and text | Implemented; live and phone acceptance pending | New-post generation after the editorial/feed/quiz foundations. Provider configuration and a checked source example are needed before live checks. | Admin form, generation permission, job model/migration, queue worker, provider adapter, validated text/optional questions, and quiz eligibility. Admin can generate and review a draft; zero-question posts publish and never supply dares; permission, duplicate, and recovery tests pass. |
 | AI-2 — Images and memes | Not started; separate approval required | Actual generated media after AI-1 acceptance. Requires image-model access and Pillow. | Generate original images, render meme captions locally, prepare descriptions and private previews. Prepared images meet the 250 KB limit; text is readable; human/device review passes. |
 | AI-3 — Silent captioned videos | Not started; separate approval required | Actual videos after AI-2 acceptance. Requires video-model access, FFmpeg/ffprobe, and worker runtime checks. | Save/poll provider jobs, download and prepare a silent captioned MP4 with a text alternative. Default eight-second portrait clip; height ≤480 pixels and size ≤5 MB; actual format/duration, Android playback, and human review pass. |
 
@@ -355,7 +355,7 @@ Evaluation changes: remove the proposed 60% started-unit-to-quiz completion targ
 
 ## Owner-approved admin AI-generation revision — 2026-10-13
 
-Owner approval covers this documentation update and the following target scope. AI-1, AI-2, and AI-3 remain not started, with separate approval required before each stage. The running application and prior implementation evidence are unchanged. This revision supersedes manual-only AI drafting, the integrated-generation deferral, universal three-question publication, and the generated-media preparation deferral. Human review and explicit publication remain mandatory.
+At the time of this planning revision, owner approval covered this documentation update and the following target scope. All three AI stages were not started and required separate approval. The later AI-1 implementation checkpoint below records its authorization and current evidence; AI-2 and AI-3 remain unstarted. This revision supersedes manual-only AI drafting, the integrated-generation deferral, universal three-question publication, and the generated-media preparation deferral. Human review and explicit publication remain mandatory.
 
 ### Admin workflow
 
@@ -430,3 +430,13 @@ Official provider references used during planning:
 - [Video generation](https://developers.openai.com/api/docs/guides/video-generation)
 
 Related project references: [Editorial workflow](content/editorial-workflow.md), [media preparation](content/media-preparation.md), and [milestone status](milestones.md). These describe existing implementation checkpoints and will be aligned when the corresponding AI stage is implemented.
+
+## AI-1 implementation checkpoint — 2026-10-13
+
+The owner explicitly authorized AI-1. Staff can request new text drafts in admin, with supplied source excerpts and optional three-question quizzes. A separate worker calls OpenAI, saves confirmed output, and imports a new unreviewed draft in one transaction. Publication remains a human action. Zero-question posts appear in the feed but never supply dares.
+
+Desktop evidence: 110 backend tests and 57 mobile helper tests pass, including permissions, duplicate requests, quota limits, interrupted jobs, provider failures, atomic imports, and mixed quiz eligibility. The migration preserved existing records. See [milestone evidence](milestones.md) and [setup steps](ai-generation-setup.md).
+
+Live generation still needs a backend API key and text model. No paid calls or automatic publication occurred. Human content review, physical-phone acceptance, remote CI, and PostgreSQL concurrency checks remain pending. AI-2 and AI-3 need separate owner approval.
+
+Update — 2026-10-14: the owner reported successful mobile use in Expo Go. General phone use is confirmed by the owner; individual phone test cases were not specified. Live AI generation, human content review, and the remaining detailed checks are not confirmed by this report. See the dated update in [milestone evidence](milestones.md).

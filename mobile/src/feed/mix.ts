@@ -23,9 +23,9 @@ export type FeedEntry = {kind:'post';key:string;post:Post}|{kind:'dare';key:stri
 export function withDares(posts:Post[],mix:string):FeedEntry[]{
  let state=2166136261;for(const c of mix)state=Math.imul(state^c.charCodeAt(0),16777619)>>>0;
  const roll=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
- let remaining=3+Math.floor(roll()*5);const entries:FeedEntry[]=[];
- for(const post of posts){entries.push({kind:'post',key:post.key,post});remaining--;
-  if(remaining===0){entries.push({kind:'dare',key:'dare:'+post.key,post:posts[Math.floor(roll()*entries.filter(e=>e.kind==='post').length)]});remaining=5+Math.floor(roll()*5);}
+ let remaining=3+Math.floor(roll()*5);const entries:FeedEntry[]=[];const eligible:Post[]=[];
+ for(const post of posts){entries.push({kind:'post',key:post.key,post});if(post.lesson.quiz_available)eligible.push(post);remaining=Math.max(0,remaining-1);
+  if(remaining===0&&eligible.length){entries.push({kind:'dare',key:'dare:'+post.key,post:eligible[Math.floor(roll()*eligible.length)]});remaining=5+Math.floor(roll()*5);}
  }
  return entries;
 }

@@ -63,3 +63,7 @@ Desktop tests have passed. These phone checks are still open:
 - Try larger phone text and a small screen. Confirm all choices, explanations, and buttons can be reached by scrolling.
 
 Record the phone model, Android version, build type, steps, expected result, and actual result. Report failures before accepting this milestone.
+
+## Posts without quizzes
+
+Admins may publish a post with no questions. You can scroll, read, and like it normally. It will not supply a dare. A feed containing only question-free posts has no dares. Older cached posts without the new eligibility flag remain readable but cannot supply dares until refreshed while connected.

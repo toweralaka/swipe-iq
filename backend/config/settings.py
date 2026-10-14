@@ -18,7 +18,7 @@ ALLOWED_HOSTS = [host.strip() for host in os.getenv(
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
-    "rest_framework", "health", "editorial", "accounts", "learning", "engagement",
+    "rest_framework", "health", "editorial", "accounts", "learning", "engagement", "generation",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -77,3 +77,16 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Swipe-IQ <login@example.co
 LOGIN_LINK_BASE_URL = os.getenv("LOGIN_LINK_BASE_URL", "http://127.0.0.1:8000/login" if DEBUG else "")
 ANDROID_PACKAGE = os.getenv("ANDROID_PACKAGE", "com.swipeiq.mobile")
 ANDROID_CERT_FINGERPRINTS = [value.strip() for value in os.getenv("ANDROID_CERT_FINGERPRINTS", "").split(",") if value.strip()]
+
+# AI-1: off until the owner configures backend-only provider access and a daily quota.
+AI_GENERATION_ENABLED = os.getenv("AI_GENERATION_ENABLED", "false").lower() == "true"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+AI_TEXT_MODEL = os.getenv("AI_TEXT_MODEL", "").strip()
+AI_TEXT_MODELS = [model.strip() for model in os.getenv("AI_TEXT_MODELS", "").split(",") if model.strip()]
+def _ai_integer(name, default):
+    try:
+        return int(os.getenv(name, default))
+    except ValueError:
+        return 0  # Disable generation through configuration validation; keep the rest of the app usable.
+AI_DAILY_JOB_LIMIT = _ai_integer("AI_DAILY_JOB_LIMIT", "0")
+AI_REQUEST_TIMEOUT = _ai_integer("AI_REQUEST_TIMEOUT", "60")

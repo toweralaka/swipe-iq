@@ -63,3 +63,7 @@ Invalid filters return 400, missing/rejected sign-in returns 401, and no matchin
 Milestone 5 adds separate authenticated quiz, submission, result, and progress routes. Feed and lesson endpoints still omit questions and keys. See the [quiz API](quiz-progress.md) for payloads, private history, and safe retries.
 
 Dares are inserted on the phone between content items, based on the returned mix token. They do not expose questions/keys, submit attempts, or start a two-person challenge merely by being displayed. Skipping a dare performs no server write. Search remains within the chosen subjects; dares draw from that returned content. The first-page cache uses the subject/search path and stores its returned mix and next cursor so offline reopening can reuse the last viewed mix. Old cached feed formats need one connected refresh after this update.
+
+## AI-1 quiz eligibility
+
+Unit lists, details, and feed posts now include quiz_available, true only for a complete three-question quiz. Zero-question published posts remain visible, including in subject selection, but cannot supply dares. Question text, keys, generation inputs, and private job metadata remain excluded. Older cached posts missing the flag remain readable and are ineligible for dares until refreshed. Generation itself is staff-only through admin; no candidate generation endpoint exists.

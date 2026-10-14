@@ -45,3 +45,7 @@ Acceptance: one-card publishing, stable shuffled cursor pages, subject/search bo
 A candidate can privately like/unlike a published feed item. Repeated taps or identical requests cannot add duplicate likes. Corrections that retain the stable card identity keep the like. The phone waits for server confirmation; an uncertain reply offers a state check instead of another blind toggle. Offline likes are disabled and are never queued. Likes do not rank the feed.
 
 Connected visible posts and optional dare shown/accepted signals count at most once per candidate/stable post/day. Skipping remains request-free. Staff with explicit export permission can download aggregate activity and server quiz totals without emails/account IDs/answers. Interest ratios use current likes among the same observed viewers, not mismatched all-time totals. Counts remain partial observations, not proof of learning. The [phone/admin checklist](likes-and-engagement-guide.md) remains open.
+
+## AI-1 implementation
+
+Staff can request new text drafts in admin using a selected topic, objective, brief, syllabus excerpt, and checked teaching source. Questions are optional: zero or exactly three per published post. Only quiz-ready posts supply optional dares. A separate worker creates unreviewed drafts; humans still review and publish them. Generation starts disabled unless backend settings enable it and provide credentials, a model, and a daily limit. See [setup](ai-generation-setup.md). Images, memes, and silent videos await separate stage approval.

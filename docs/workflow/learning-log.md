@@ -91,3 +91,9 @@ The stable card identity links a like across corrections without attaching it to
 A pilot needs clear definitions more than impressive counts. A view here means a connected post was mostly visible for a second. Repeated sightings count once per user/post/day. Failed/offline events are discarded, so reports are incomplete. We separate current like totals from the report window and provide likes among that window's observed viewers for a comparable ratio. Quiz totals come from accepted server attempts.
 
 Reports contain aggregate counts without candidate emails, usernames, IDs, or answer keys and require a staff export permission. This limits accidental disclosure without claiming small groups are anonymous. Desktop tests verify rules, permissions, and output fields; phone timing and PostgreSQL simultaneous writes still need separate checks. The workflow lesson is to define a measurement, handle retries, constrain the database, test failure cases, and document what the numbers cannot tell you.
+
+## AI-1: separate a paid request from saving its result
+
+A network timeout does not tell us whether the provider charged for work. Automatically retrying could pay twice. We save a confirmed response before importing it, and mark uncertain requests for human checking. A transaction keeps a failed import from leaving half a draft. A signed form ID makes repeated clicks refer to the same request. These patterns also apply to payments, exports, and other slow external jobs.
+
+Strict output shapes catch missing fields and invalid question counts. They do not prove that a Biology explanation is correct. Keep human review as a separate step, and report mocked tests separately from a live provider call or phone check.

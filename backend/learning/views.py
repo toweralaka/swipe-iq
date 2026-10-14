@@ -11,7 +11,7 @@ class RetrySubmission(APIException):
     status_code = 503
     default_detail = "Submission is busy. Retry the same submission ID and answers."
 from accounts.views import StudentView
-from editorial.student_api import available_versions, StudentPagination
+from editorial.student_api import available_quiz_versions, StudentPagination
 from .models import QuizAttempt
 from .services import submit_attempt
 
@@ -43,7 +43,7 @@ class AttemptDetail(AttemptSummary):
 
 class QuizView(StudentView):
     def get(self, request, version_id):
-        version = get_object_or_404(available_versions(), pk=version_id)
+        version = get_object_or_404(available_quiz_versions(), pk=version_id)
         questions = [{"id": q.pk, "position": q.position, "prompt": q.prompt,
                       "choices": {c: getattr(q, "choice_" + c) for c in "abcd"}} for q in version.questions.all()]
         return Response({"version": version.pk, "title": version.title, "submission_id": str(uuid.uuid4()), "questions": questions})

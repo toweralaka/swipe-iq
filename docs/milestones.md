@@ -258,3 +258,31 @@ Desktop checks: 90 backend tests and 55 mobile helper tests pass; Django system/
 Still open: physical-phone like/unlike, lost-reply recovery, offline/account isolation, large text/small screens, and native visibility/background timing checks in the [walkthrough](likes-and-engagement-guide.md). Actual PostgreSQL overlapping writes and report behavior need verification before hosted pilot; SQLite and simulated errors do not prove those. Remote CI has not run for these uncommitted changes.
 
 No commit, push, deployment, friend challenges, or later milestone implemented. Stop for owner review before Milestone 7.
+
+## AI-1 — Admin jobs and text — 2026-10-13
+
+Owner authorized AI-1. Branch: feat/admin-ai-text. Implemented staff-only requests for new text drafts, source snapshots, optional three questions, a daily global quota, a separate worker, and read-only job results. Confirmed responses save before atomic import; uncertain outcomes are never retried automatically. Human review and explicit publication remain required. Existing posts are not regenerated.
+
+Publication now accepts zero or exactly three questions. The feed exposes quiz_available; dares use only eligible posts already loaded. Older saved posts without that flag remain readable but do not supply dares.
+
+Verification: 110 backend tests and 57 mobile helper tests pass. Django system and migration-drift checks, pip dependency checks, TypeScript, and ESLint pass. The generation migration was applied locally and all pre-existing model rows were preserved. OpenAI SDK 3.29.0 is pinned with its dependencies; its Responses method signature was checked locally without network calls.
+
+Live generation is pending: the local backend lacks an API key and text model. No paid calls, publication, commit, push, or deployment occurred. Follow [AI setup](ai-generation-setup.md) for a controlled request and human/phone checks. The worker lock coordinates one local worker; actual PostgreSQL concurrency and multi-host operation are not established. Remote CI is pending. Stop before AI-2; image, meme, and video generation require separate approval.
+
+Final AI-1 checks: Android export and online Expo dependency alignment pass. All 24 README/docs Markdown files have resolving local links. Git whitespace checks pass; private environment files, the database, worker lock, and generated Android export are ignored. Existing non-failing Node module warnings remain.
+
+### Owner-reported Expo Go test — 2026-10-14
+
+The owner confirmed that mobile use was tested successfully in Expo Go. This records a successful phone-use check; no individual test cases or device details were supplied. It does not establish that every offline, recovery, accessibility, or account-switch scenario passed. Live AI generation and human content review still need separate confirmation; remote CI and PostgreSQL checks remain open.
+
+### Admin field guidance — 2026-10-14
+
+Added plain-language help to all content generation request fields, including Biology examples, source instructions, optional questions, saved status, and result details. The create form inherits model help so create and saved-request pages use the same explanations. Added and applied a help-text-only migration; request behavior and stored content are unchanged. Django checks, migration-drift checks, and all 20 generation tests pass. Verified that every visible generation form field and every request model field has help text.
+
+### Admin model selection — 2026-10-14
+
+Added a text-model dropdown using the backend AI_TEXT_MODELS list, with AI_TEXT_MODEL as the default and single-choice fallback. Requests save the chosen model; repeated submissions include that choice in their duplicate check. The server rejects unlisted models. Future media stages remain disabled. All 21 generation tests, Django checks, and migration-drift checks pass. No provider calls were made.
+
+### Random feed across subjects — 2026-10-14
+
+Confirmed the existing server shuffles the combined selected-subject content pool, and mobile preserves that order. Extended the feed regression test to cover two subjects, varied mixes, stable repeated requests, and orders that are not grouped by subject. All 25 account/API tests pass. Updated the phone guide with refresh and offline behavior. No feed algorithm or subject-selection behavior changed.

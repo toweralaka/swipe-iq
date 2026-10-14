@@ -361,10 +361,14 @@ class ContentAccessTests(AccessCase):
         for invalid in ["bad", "a" * 33]:
             self.assertEqual(self.client.get("/api/v1/feed/", {**params, "mix": invalid}).status_code, 400)
 
-    def test_mix_changes_order_without_changing_the_selected_content_pool(self):
+    def test_mix_changes_order_across_subjects_without_changing_the_selected_content_pool(self):
         call_command("seed_sample_content", stdout=io.StringIO())
         versions = list(LearningUnitVersion.objects.filter(unit__key__startswith="sample-"))
-        for version in versions:
+        other_subject = Subject.objects.create(examination=self.version.topic.subject.examination, name="Chemistry")
+        other_topic = Topic.objects.create(subject=other_subject, name="Test topic")
+        for index, version in enumerate(versions):
+            if index % 2:
+                version.topic = other_topic
             for field in CHECKS:
                 setattr(version, field, True)
             version.source_reference = "Checked fixture"
@@ -375,10 +379,12 @@ class ContentAccessTests(AccessCase):
         expected = {version.pk for version in versions}
         orders = set()
         for character in "abcdef":
-            params = {"subjects": self.version.topic.subject_id, "mix": character * 32}
+            params = {"subjects": f"{self.version.topic.subject_id},{other_subject.pk}", "mix": character * 32}
             first = self.client.get("/api/v1/feed/", params).data
             order = tuple(row["id"] for row in first["results"])
             self.assertEqual(set(order), expected)
             self.assertEqual(tuple(row["id"] for row in self.client.get("/api/v1/feed/", params).data["results"]), order)
             orders.add(order)
         self.assertGreater(len(orders), 1)
+        subjects = {version.pk: version.topic.subject_id for version in versions}
+        self.assertTrue(any(sum(subjects[a] != subjects[b] for a, b in zip(order, order[1:])) > 1 for order in orders))

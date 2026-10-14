@@ -24,7 +24,7 @@ For local evaluation, a superuser can perform all steps. For regular use, give e
 3. Create a stable Learning unit, then a version starting at 1. Save as draft. Its title, objective, topic, and content belong to that version.
 4. Create media assets separately following [media preparation](media-preparation.md). File size and basic signature are checked automatically; staff must verify actual playback/duration/dimensions and rights.
 5. Add exactly one content card numbered 1, with meaningful standalone text. Attach media as needed. The collection can use all four formats; a single unit need not contain all four.
-6. Add exactly three questions numbered 1–3; provide four distinct choices, one correct letter, and an explanatory answer for each.
+6. Optionally add exactly three questions numbered 1–3; leave the quiz empty otherwise. Provide four distinct choices, one correct letter, and an explanatory answer for each.
 7. Complete [review checklist](review-checklist.md), six confirmations, verified source details, and review notes. Save changes before running publication actions.
 8. In the learning-unit-version list, select the draft and run Publish selected reviewed drafts. The service revalidates the complete saved unit, records the acting reviewer/time, and freezes the version.
 
@@ -60,3 +60,7 @@ Only JAMB is in the MVP. For a future examination, create a separate inactive ex
 New publications require one card. It can include text and one optional media attachment. Carousels are deferred. Keep humour and explanations understandable without reading another post first. Questions supply optional in-feed dares, not a compulsory quiz after the post.
 
 Seed reruns preserve existing content, including older multi-card drafts. They do not convert or publish those drafts. For an older multi-card draft, a human must prepare one standalone card before publishing. For published material, use a reviewed replacement draft; never alter the original history.
+
+## AI-1 text drafts and optional questions
+
+Staff can now request a new text draft through admin, with supplied source excerpts and optional questions. Follow [AI setup](../ai-generation-setup.md). All review confirmations remain unset and publication is still an explicit human action. Posts can have zero or exactly three questions; only complete published quizzes supply dares. One or two questions block publication. Images/memes/videos still require manual preparation until their AI stages are separately approved.
