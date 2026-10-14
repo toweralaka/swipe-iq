@@ -294,3 +294,9 @@ Owner requested five Government and five Chemistry posts. Added and ran seed_jam
 ### Automatic admin author — 2026-10-14
 
 New learning units created through admin record the logged-in staff member as author. The author field is read-only; posted author values cannot override it. Editing preserves existing authors, including empty sample authors. Request-level creation and edit checks pass with all 35 editorial tests; Django system, migration-drift, and whitespace checks pass. No migration or existing-record rewrite.
+
+### Public landing page — 2026-10-14
+
+Owner requested a web introduction and an inactive Play Store download link. Added a public Django template at /, describing subject choices, random posts, optional solo dares, likes/search, review, and data saver. Two native disabled buttons show Google Play Coming soon. Responsive CSS, skip navigation, reduced-motion handling, and an explicitly illustrative phone preview are included, without external asset requests.
+
+Verified unauthenticated HTTP 200, both disabled download controls, resolving anchor targets, and unique IDs using the rendered response. Both health tests, Django system/migration checks, and whitespace checks pass. Browser visual and real-phone layout checks remain pending. No deployment, Play Store link activation, database changes, dependencies, or app-feature changes.
