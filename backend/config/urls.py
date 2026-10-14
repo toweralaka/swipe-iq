@@ -1,12 +1,19 @@
+from engagement.views import LikeView, EventView
 from django.contrib import admin
 from django.urls import path
+from django.views.generic import TemplateView
 from health.views import health
 from editorial.views import media_preview
 
 from accounts.views import RequestLinkView, ExchangeView, MeView, LogoutView, login_help, assetlinks
-from editorial.student_api import ExaminationList, SubjectList, TopicList, UnitList, UnitDetail, StudentMedia
+from editorial.student_api import ExaminationList, SubjectList, TopicList, UnitList, UnitDetail, StudentMedia, UnitAvailability, FeedList
+
+from learning.views import QuizView, AttemptList, AttemptResult, ProgressView
 
 urlpatterns = [
+    path("", TemplateView.as_view(template_name="health/landing.html"), name="landing"),
+    path("api/v1/units/<int:version_id>/cards/<uuid:identity>/like/", LikeView.as_view()),
+    path("api/v1/engagement/events/", EventView.as_view()),
     path("login", login_help),
     path(".well-known/assetlinks.json", assetlinks),
     path("api/v1/auth/request-link/", RequestLinkView.as_view()),
@@ -16,7 +23,13 @@ urlpatterns = [
     path("api/v1/examinations/", ExaminationList.as_view()),
     path("api/v1/subjects/", SubjectList.as_view()),
     path("api/v1/topics/", TopicList.as_view()),
+    path("api/v1/units/<int:version_id>/quiz/", QuizView.as_view()),
+    path("api/v1/attempts/", AttemptList.as_view()),
+    path("api/v1/attempts/<uuid:pk>/", AttemptResult.as_view()),
+    path("api/v1/progress/", ProgressView.as_view()),
+    path("api/v1/feed/", FeedList.as_view()),
     path("api/v1/units/", UnitList.as_view()),
+    path("api/v1/units/availability/", UnitAvailability.as_view()),
     path("api/v1/units/<int:pk>/", UnitDetail.as_view()),
     path("api/v1/media/<uuid:asset_id>/", StudentMedia.as_view()),
     path("editorial/media/<uuid:asset_id>/", media_preview, name="editorial-media"),

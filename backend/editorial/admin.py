@@ -27,12 +27,14 @@ class FrozenInline(admin.StackedInline):
 
 class CardInline(FrozenInline):
     model = Card
-    max_num = 3
+    max_num = 1
+    verbose_name_plural = "Content card — one per post; keep existing history"
 
 
 class QuestionInline(FrozenInline):
     model = Question
     max_num = 3
+    verbose_name_plural = "Optional quiz — leave empty or add exactly three questions"
 
 
 @admin.register(LearningUnitVersion)
@@ -123,9 +125,10 @@ class MediaAdmin(NoBulkDeleteAdmin):
 @admin.register(LearningUnit)
 class UnitAdmin(NoBulkDeleteAdmin):
     list_display = ["key", "author"]
+    readonly_fields = ["author"]
 
     def save_model(self, request, obj, form, change):
-        if not change and not obj.author_id:
+        if not change:
             obj.author = request.user
         super().save_model(request, obj, form, change)
 

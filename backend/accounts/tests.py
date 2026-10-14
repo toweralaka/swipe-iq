@@ -171,7 +171,7 @@ class ContentAccessTests(AccessCase):
         response = self.client.get(f"/api/v1/units/{self.version.pk}/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["topic"]["subject"]["examination"]["code"], "jamb")
-        self.assertEqual(len(response.data["cards"]), 2)
+        self.assertEqual(len(response.data["cards"]), 1)
         for key in ["correct_choice", "explanation", "questions", "ai_provenance", "review_notes", "reviewer"]:
             self.assertNotIn(key, response.data)
         self.assertEqual(self.client.get("/api/v1/examinations/").data["results"][0]["code"], "jamb")
@@ -237,3 +237,154 @@ class ContentAccessTests(AccessCase):
         response = self.client.get(f"/api/v1/topics/?subject={subject.pk}")
         self.assertEqual([item["id"] for item in response.data["results"]], [self.version.topic_id])
         self.assertEqual(self.client.get("/api/v1/units/?topic=bad").data["count"], 0)
+
+    def test_saved_lesson_check_excludes_drafts_withdrawn_and_inactive_exams(self):
+        url = "/api/v1/units/availability/"
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").status_code, 401)
+        self.sign_in()
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk, 99999]}, format="json").data["available_ids"], [])
+        publish(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [self.version.pk])
+        exam = self.version.topic.subject.examination
+        exam.is_active = False
+        exam.save()
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [])
+        exam.is_active = True
+        exam.save()
+        withdraw(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.post(url, {"version_ids": [self.version.pk]}, format="json").data["available_ids"], [])
+        for invalid in [{"version_ids": [self.version.pk] * 201}, {"version_ids": ["bad"]}, {}]:
+            self.assertEqual(self.client.post(url, invalid, format="json").status_code, 400)
+
+    def test_swipe_feed_requires_selection_and_hides_unpublished_content(self):
+        url = "/api/v1/feed/"
+        self.assertEqual(self.client.get(url, {"subjects": self.version.topic.subject_id}).status_code, 401)
+        self.sign_in()
+        subject = self.version.topic.subject_id
+        self.assertEqual(self.client.get(url, {"subjects": subject}).data["count"], 0)
+        for inputs in [{}, {"subjects": "bad"}, {"subjects": "0"}, {"subjects": ",".join(["1"] * 21)}, {"subjects": "1", "q": "x" * 121}]:
+            self.assertEqual(self.client.get(url, inputs).status_code, 400)
+        publish(self.version.pk, self.reviewer)
+        response = self.client.get(url, {"subjects": subject})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 1)
+        self.assertEqual(len(response.data["results"][0]["cards"]), 1)
+        self.assertNotIn("questions", response.data["results"][0])
+        withdraw(self.version.pk, self.reviewer)
+        self.assertEqual(self.client.get(url, {"subjects": subject}).data["count"], 0)
+
+    def test_swipe_feed_searches_cards_and_keeps_subject_exam_boundary(self):
+        card = self.version.cards.first()
+        card.text = "The membrane bouncer checks the guest list."
+        card.save()
+        publish(self.version.pk, self.reviewer)
+        other = LearningUnitVersion.objects.exclude(pk=self.version.pk).first()
+        exam = Examination.objects.create(code="ssce", name="SSCE", is_active=True)
+        biology = Subject.objects.create(name="Biology", examination=exam)
+        topic = Topic.objects.create(subject=biology, name="Cells")
+        other.topic = topic
+        for field in CHECKS:
+            setattr(other, field, True)
+        other.source_reference = "Checked fixture reference"
+        other.review_notes = "Automated fixture only"
+        other.save()
+        publish(other.pk, self.reviewer)
+        self.sign_in()
+        selected = self.version.topic.subject_id
+        for query in ["BOUNCER", "membrane guest", self.version.title]:
+            response = self.client.get("/api/v1/feed/", {"subjects": selected, "q": query})
+            self.assertEqual([row["id"] for row in response.data["results"]], [self.version.pk])
+        self.assertEqual(self.client.get("/api/v1/feed/", {"subjects": selected, "q": "doesnotexist"}).data["count"], 0)
+        mixed = self.client.get("/api/v1/feed/", {"subjects": f"{selected},{biology.pk}"})
+        self.assertEqual(set(row["id"] for row in mixed.data["results"]), {self.version.pk, other.pk})
+        exam.is_active = False
+        exam.save()
+        self.assertEqual(self.client.get("/api/v1/feed/", {"subjects": biology.pk}).data["count"], 0)
+
+    def test_swipe_feed_pagination_keeps_search_and_subjects(self):
+        from editorial.student_api import FeedPagination
+        publish(self.version.pk, self.reviewer)
+        other = LearningUnitVersion.objects.exclude(pk=self.version.pk).first()
+        for field in CHECKS:
+            setattr(other, field, True)
+        other.source_reference = "Checked fixture"
+        other.review_notes = "Automated fixture"
+        other.save()
+        publish(other.pk, self.reviewer)
+        self.sign_in()
+        with patch.object(FeedPagination, "page_size", 1):
+            response = self.client.get("/api/v1/feed/", {"subjects": self.version.topic.subject_id})
+            self.assertEqual(response.data["count"], 2)
+            self.assertEqual(len(response.data["results"]), 1)
+            self.assertIn("subjects=", response.data["next"])
+            second = self.client.get(response.data["next"])
+            self.assertNotEqual(response.data["results"][0]["id"], second.data["results"][0]["id"])
+
+    def test_random_feed_mix_is_stable_across_cursor_pages_and_excludes_later_publications(self):
+        from editorial.student_api import FeedPagination
+        from django.utils import timezone
+        publish(self.version.pk, self.reviewer)
+        other = LearningUnitVersion.objects.exclude(pk=self.version.pk).first()
+        for field in CHECKS:
+            setattr(other, field, True)
+        other.source_reference = "Checked fixture"
+        other.review_notes = "Test fixture"
+        other.save()
+        publish(other.pk, self.reviewer)
+        self.sign_in()
+        params = {"subjects": self.version.topic.subject_id, "mix": "a" * 32}
+        with patch.object(FeedPagination, "page_size", 1):
+            first = self.client.get("/api/v1/feed/", params).data
+            self.assertEqual(first["mix"], "a" * 32)
+            self.assertIn("cursor=", first["next"])
+            self.assertIn("before=", first["next"])
+            second = self.client.get(first["next"]).data
+            self.assertEqual(second["mix"], first["mix"])
+            self.assertEqual({first["results"][0]["id"], second["results"][0]["id"]}, {self.version.pk, other.pk})
+            self.assertEqual(self.client.get(first["next"]).data, second)
+            # Removing a preceding item must not skip a later item as offset paging would.
+            earlier = first["results"][0]["id"]
+            withdraw(earlier, self.reviewer)
+            self.assertEqual(self.client.get(first["next"]).data["results"], second["results"])
+        fresh = self.client.get("/api/v1/feed/", {"subjects": self.version.topic.subject_id}).data
+        again = self.client.get("/api/v1/feed/", {"subjects": self.version.topic.subject_id}).data
+        self.assertNotEqual(fresh["mix"], again["mix"])
+        before = timezone.now().isoformat()
+        replacement = replacement_draft(other.pk)
+        for field in CHECKS:
+            setattr(replacement, field, True)
+        replacement.review_notes = "Rechecked fixture"
+        replacement.save()
+        publish(replacement.pk, self.reviewer)
+        current = self.client.get("/api/v1/feed/", {**params, "before": before}).data
+        self.assertNotIn(replacement.pk, [row["id"] for row in current["results"]])
+        for invalid in ["bad", "a" * 33]:
+            self.assertEqual(self.client.get("/api/v1/feed/", {**params, "mix": invalid}).status_code, 400)
+
+    def test_mix_changes_order_across_subjects_without_changing_the_selected_content_pool(self):
+        call_command("seed_sample_content", stdout=io.StringIO())
+        versions = list(LearningUnitVersion.objects.filter(unit__key__startswith="sample-"))
+        other_subject = Subject.objects.create(examination=self.version.topic.subject.examination, name="Chemistry")
+        other_topic = Topic.objects.create(subject=other_subject, name="Test topic")
+        for index, version in enumerate(versions):
+            if index % 2:
+                version.topic = other_topic
+            for field in CHECKS:
+                setattr(version, field, True)
+            version.source_reference = "Checked fixture"
+            version.review_notes = "Test fixture only"
+            version.save()
+            publish(version.pk, self.reviewer)
+        self.sign_in()
+        expected = {version.pk for version in versions}
+        orders = set()
+        for character in "abcdef":
+            params = {"subjects": f"{self.version.topic.subject_id},{other_subject.pk}", "mix": character * 32}
+            first = self.client.get("/api/v1/feed/", params).data
+            order = tuple(row["id"] for row in first["results"])
+            self.assertEqual(set(order), expected)
+            self.assertEqual(tuple(row["id"] for row in self.client.get("/api/v1/feed/", params).data["results"]), order)
+            orders.add(order)
+        self.assertGreater(len(orders), 1)
+        subjects = {version.pk: version.topic.subject_id for version in versions}
+        self.assertTrue(any(sum(subjects[a] != subjects[b] for a, b in zip(order, order[1:])) > 1 for order in orders))

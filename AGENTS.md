@@ -19,9 +19,9 @@
 
 - Django + DRF; React Native + Expo + TypeScript; SQLite locally and PostgreSQL before hosted pilot.
 - Audience: invited Nigerian JAMB Biology candidates on Android.
-- AI drafts are manually entered and human-reviewed before publishing. Never auto-publish.
+- AI-1 supports staff-requested new text drafts and optional questions; manual drafting remains available. Human review and explicit publication are mandatory. Never auto-publish.
 - Include text, images, audio, video, default data saver, bounded cache, likes, quizzes, progress, and asynchronous challenges according to the plan.
-- Defer candidate uploads, sharing, live battles, integrated AI generation, and offline write synchronization.
+- Defer candidate uploads, sharing, live battles, AI image/meme/video stages until separately approved, audio generation, narrated video, bulk generation, existing-post AI regeneration, and offline write synchronization.
 - Enforce permissions, publication visibility, and scoring on the server. Keep answer keys and draft content private.
 
 ## Verification and secrets
@@ -37,3 +37,4 @@
 - Keep approved scope in docs/implementation-plan.md; record changed decisions explicitly and obtain approval.
 - Update docs/milestones.md with evidence and remaining dependencies; capture reusable lessons in docs/workflow/learning-log.md.
 - Add skills only for proven repeatable workflows. Add MCP integrations only for a justified concrete need.
+- Update README based on the state of the app

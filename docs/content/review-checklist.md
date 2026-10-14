@@ -11,9 +11,19 @@
 
 ## Structure and media
 
-- 1–3 consecutive cards and exactly three four-choice questions; one unambiguous answer each.
+- Exactly one content card numbered 1 and either zero or exactly three four-choice questions; one unambiguous answer each.
 - Relevant content rather than unfilled media slots; remove UNREVIEWED labels only after review.
 - Preview every asset on a suitable player/device; verify duration, dimensions, format, captions, transcript, and file size. Set metadata checked only after this work.
 - Record review notes describing corrections and checks. Publication captures the actual acting staff reviewer and timestamp.
 
 The software requires confirmations but cannot prove their truth. Do not tick them to bypass review. Test fixtures and seeded drafts are not approved educational samples.
+
+## One-content-post update
+
+New publications require one card. It can include text and one optional media attachment. Carousels are deferred. Keep humour and explanations understandable without reading another post first. Questions supply optional in-feed dares, not a compulsory quiz after the post.
+
+Seed reruns preserve existing content, including older multi-card drafts. They do not convert or publish those drafts. For an older multi-card draft, a human must prepare one standalone card before publishing. For published material, use a reviewed replacement draft; never alter the original history.
+
+## AI-1 text drafts and optional questions
+
+Staff can now request a new text draft through admin, with supplied source excerpts and optional questions. Follow [AI setup](../ai-generation-setup.md). All review confirmations remain unset and publication is still an explicit human action. Posts can have zero or exactly three questions; only complete published quizzes supply dares. One or two questions block publication. Images/memes/videos still require manual preparation until their AI stages are separately approved.

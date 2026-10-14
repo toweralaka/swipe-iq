@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from .models import Card, LearningUnitVersion, MediaAsset, Question
+from .models import Card, LearningUnit, LearningUnitVersion, MediaAsset, Question
 from .services import CHECKS, publish, replacement_draft, withdraw
 
 
@@ -51,7 +51,7 @@ class EditorialTests(TestCase):
         self.version.save()
         call_command("seed_demo", stdout=io.StringIO())
         self.assertEqual(LearningUnitVersion.objects.count(), 2)
-        self.assertEqual(Card.objects.count(), 5)
+        self.assertEqual(Card.objects.count(), 2)
         self.assertEqual(Question.objects.count(), 6)
         self.version.refresh_from_db()
         self.assertEqual(self.version.title, "Editor changed this")
@@ -136,7 +136,7 @@ class EditorialTests(TestCase):
         withdrawn = withdraw(published.pk, self.reviewer)
         self.assertEqual(withdrawn.status, "withdrawn")
         self.assertIsNotNone(withdrawn.withdrawn_at)
-        self.assertEqual(withdrawn.cards.count(), 2)
+        self.assertEqual(withdrawn.cards.count(), 1)
         with self.assertRaises(ValidationError):
             publish(withdrawn.pk, self.reviewer)
 
@@ -192,6 +192,24 @@ class EditorialTests(TestCase):
         self.assertEqual(response["Cache-Control"], "private, no-store")
         response.close()
         self.assertEqual(self.client.get("/private-media/" + media.file.name).status_code, 404)
+
+    def test_admin_sets_author_and_preserves_it_on_edit_despite_posted_author(self):
+        admin_user = get_user_model().objects.create_superuser("author-admin", "author@example.com", "test-only-password")
+        other = get_user_model().objects.create_user("other-author")
+        self.client.force_login(admin_user)
+        add_url = reverse("admin:editorial_learningunit_add")
+        self.assertNotIn("author", self.client.get(add_url).context["adminform"].form.fields)
+        response = self.client.post(add_url, {"key": "admin-authored-fixture", "author": other.pk, "_save": "Save"})
+        self.assertEqual(response.status_code, 302)
+        unit = LearningUnit.objects.get(key="admin-authored-fixture")
+        self.assertEqual(unit.author_id, admin_user.pk)
+        self.client.force_login(get_user_model().objects.create_superuser("editing-admin", "editing@example.com", "test-only-password"))
+        change_url = reverse("admin:editorial_learningunit_change", args=[unit.pk])
+        self.assertNotIn("author", self.client.get(change_url).context["adminform"].form.fields)
+        response = self.client.post(change_url, {"key": "admin-authored-renamed", "author": other.pk, "_save": "Save"})
+        self.assertEqual(response.status_code, 302)
+        unit.refresh_from_db()
+        self.assertEqual(unit.author_id, admin_user.pk)
 
     def test_admin_rejects_student_and_readonly_history(self):
         student = get_user_model().objects.create_user("student")
@@ -249,10 +267,13 @@ class EditorialTests(TestCase):
         audio = self.asset()
         video = self.asset(kind="video", file=SimpleUploadedFile("fixture.mp4", b"0000ftypisom0000"), height_pixels=480, captions_vtt="WEBVTT\n\n00:00.000 --> 00:01.000\nFixture\n")
         version = LearningUnitVersion.objects.get(unit__key="demo-cell-media")
-        for card, asset in zip(version.cards.all(), [image, audio, video]):
+        for asset in [image, audio, video]:
+            card = version.cards.get()
             card.media = asset
             card.save()
-        self.assertEqual(set(version.cards.values_list("media__kind", flat=True)), {"image", "audio", "video"})
+            card.refresh_from_db()
+            self.assertEqual(card.media.kind, asset.kind)
+            self.assertEqual(version.cards.count(), 1)
 
     def test_admin_upload_records_uploader_size_and_private_url(self):
         admin_user = get_user_model().objects.create_superuser("upload-admin", "upload@example.com", "test-only-password")
@@ -308,7 +329,7 @@ class EditorialTests(TestCase):
             self.assertEqual(version.status, "draft")
             self.assertIsNone(version.reviewer)
             self.assertTrue(all(not getattr(version, field) for field in CHECKS))
-            self.assertEqual(version.cards.count(), 3)
+            self.assertEqual(version.cards.count(), 1)
             self.assertEqual(version.questions.count(), 3)
             for question in version.questions.all():
                 question.full_clean()
@@ -399,3 +420,20 @@ class EditorialTests(TestCase):
         response = self.client.get(reverse("admin:editorial_subject_changelist"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "JAMB")
+
+    def test_new_publication_requires_one_card_without_deleting_legacy_draft_cards(self):
+        self.ready()
+        first = self.version.cards.get()
+        extra = Card.objects.create(version=self.version, position=2, text="Legacy extra card")
+        with self.assertRaisesMessage(ValidationError, "exactly one content card"):
+            publish(self.version.pk, self.reviewer)
+        self.assertEqual(self.version.cards.count(), 2)
+        extra.delete()
+        publish(self.version.pk, self.reviewer)
+        self.assertEqual(self.version.cards.get().identity, first.identity)
+
+    def test_seed_rerun_preserves_existing_multi_card_content(self):
+        Card.objects.create(version=self.version, position=2, text="Keep this editor content")
+        before = list(self.version.cards.values())
+        call_command("seed_demo", stdout=io.StringIO())
+        self.assertEqual(list(self.version.cards.values()), before)

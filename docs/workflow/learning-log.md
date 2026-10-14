@@ -43,3 +43,57 @@ Authentication crosses email, server, Android link handling, and secure device s
 Keep web links and token exchange separate: email scanners can safely open a help page, while an explicit app confirmation performs a POST. Hash server credentials and keep local test emails out of Git and logs. Document provider/domain/signing configuration without inventing delivered emails or device results.
 
 A prepared app config and successful Android bundle do not establish verified App Links. Record the physical phone checklist separately and leave acceptance pending until the actual external setup and device check are done. This distinction applies to any future app that depends on external services.
+
+## Milestone 4 — test failure paths before calling a feed complete
+
+The phone screens use the same protected backend routes that were built in Milestone 3. This lets us add a usable feed without changing the review-and-publish workflow or exposing drafts.
+
+Keep three jobs separate: screens display lessons, the repository chooses between server and saved content, and the cache manages files and space. This gives each part a clear job and lets tests simulate lost connections and full storage. The same pattern works for a recipe app, field guide, or training app.
+
+A lost connection is different from a server refusing access. Only a network failure can use saved text; rejected sign-ins and missing lessons must stay rejected. Offline copies need a visible label because the phone cannot know about an admin's recent changes until it reconnects.
+
+Clear operations need to handle work already in progress. A generation number makes a download started before sign-out fail when it tries to save afterwards. Otherwise clearing files once would not be enough.
+
+Desktop checks can prove storage rules and request handling. They cannot prove sound stops when an Android app goes into the background or that video captions match speech on a real phone. Record those checks separately, use simple steps, and leave them pending until someone performs them.
+
+## Feed redesign — change the journey without weakening the rules
+
+The owner asked for subject picks and a playful swipe feed instead of a chain of lesson menus. We record that change as an addendum to the approved plan, then update the screens, API contract, tests, and phone guide together. That keeps the reason for the change visible without erasing the earlier decision.
+
+The server still decides which posts are published and which exam a subject belongs to. The phone changes how those safe results look. Search uses the same publication rules, so a prettier screen cannot accidentally make drafts public.
+
+Submitting search once saves requests compared with searching on every keystroke. Full-screen cards need a separate full-text view because long explanations and large phone text cannot always fit. Keep the short view inviting while preserving the complete explanation and media controls.
+
+Tests can check filtering and saved copies. Only real candidates can tell us whether the new flow is more fun. Record their feedback rather than claiming an engagement improvement from the redesign alone.
+
+## Milestone 5: scores, retries, and honest progress
+
+We calculate scores on the server because a phone request can be changed. We also give each submission a stable ID. If the connection drops after the server records a play, retrying that ID returns the same result. A database constraint protects this rule even if requests overlap. A repeat play gets a fresh ID.
+
+We save a result snapshot so later editorial corrections cannot silently rewrite what a candidate answered. A stable post ID links corrected versions for completion and first-play counts. Practice stays visible without raising the original first-play score. These numbers describe app activity, not proven exam improvement.
+
+Unfinished answers deserve different handling from disposable feed copies. They use separate document files and two alternating saves. Tests deliberately interrupt writes and replies; they check whether choices survive and whether a retry keeps its ID. Native phone behavior and PostgreSQL concurrency still require their own checks. The repeatable workflow is to identify the failure that matters, encode the rule, test that failure, and document what remains unverified.
+
+## Entertainment-first scope correction
+
+The owner clarified the experience before further milestone work: funny standalone posts, random subject-based scrolling, one content card today, and occasional optional in-feed dares. We recorded this as an approved change instead of silently treating earlier lesson/completion rules as still current.
+
+A random sort on every page can repeat or skip posts. We use one mix token for the entire scroll, a cursor for the last position, and a publication cutoff. A fresh online feed gets a new mix; offline reads reuse the saved one. Tests check stable pages, withdrawal between pages, and saved cursor pages.
+
+Removing a quiz button also removes a recovery path. We added unfinished dares to private progress so saved answers remain reachable. One-card publishing applies to new publications; existing cards, IDs, reviews, and results stay intact. Seed changes affect only newly created drafts. This is how a product decision becomes concrete rules, compatibility handling, tests, and updated instructions. Fun and incidental learning still need observation with real users; passing tests cannot establish them.
+
+## Milestone 6 — 2026-10-13: likes and useful evidence
+
+A toggle request means “change whatever the server currently has,” which can undo a like if a lost reply is retried. Sending an explicit desired value, true or false, makes repeated requests safe. The phone waits for confirmation. If the reply is uncertain, it reads the saved state before another change. Tests deliberately lose a reply after the simulated server accepts it.
+
+The stable card identity links a like across corrections without attaching it to unrelated posts. Database uniqueness handles duplicate requests; supported writes validate publication and the authenticated account. We reused the existing account-bound request check through a shared auth helper rather than creating a second login path.
+
+A pilot needs clear definitions more than impressive counts. A view here means a connected post was mostly visible for a second. Repeated sightings count once per user/post/day. Failed/offline events are discarded, so reports are incomplete. We separate current like totals from the report window and provide likes among that window's observed viewers for a comparable ratio. Quiz totals come from accepted server attempts.
+
+Reports contain aggregate counts without candidate emails, usernames, IDs, or answer keys and require a staff export permission. This limits accidental disclosure without claiming small groups are anonymous. Desktop tests verify rules, permissions, and output fields; phone timing and PostgreSQL simultaneous writes still need separate checks. The workflow lesson is to define a measurement, handle retries, constrain the database, test failure cases, and document what the numbers cannot tell you.
+
+## AI-1: separate a paid request from saving its result
+
+A network timeout does not tell us whether the provider charged for work. Automatically retrying could pay twice. We save a confirmed response before importing it, and mark uncertain requests for human checking. A transaction keeps a failed import from leaving half a draft. A signed form ID makes repeated clicks refer to the same request. These patterns also apply to payments, exports, and other slow external jobs.
+
+Strict output shapes catch missing fields and invalid question counts. They do not prove that a Biology explanation is correct. Keep human review as a separate step, and report mocked tests separately from a live provider call or phone check.

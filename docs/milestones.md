@@ -8,7 +8,10 @@ Authority: [Approved plan](implementation-plan.md), section 4. Dates use Africa/
 | 1 — Foundation | Implemented on feat/foundation; desktop checks passed; owner confirmed phone connection. |
 | 2 — Editorial content and media | Implementation and automated checks complete on feat/editorial-content; human content/media acceptance pending. |
 | 3 — Email login and student API | Implemented on feat/student-access; desktop checks passed; external configuration and installed-phone acceptance pending. |
-| 4–9 | Not started; separately authorized in sequence. |
+| 4 — Feed, playback, and caching | Implemented on feat/feed-playback-cache; desktop checks passed; phone playback, slow/offline, and large-text checks pending. |
+| 5 — Quizzes and progress | Implemented on feat/quizzes-progress; desktop checks passed; physical-phone acceptance pending. |
+| 6 — Likes and engagement evidence | Implemented on feat/likes-engagement; desktop checks passed; phone and PostgreSQL acceptance pending. |
+| 7–9 | Not started; each needs separate approval. |
 
 ## Milestone 0 evidence — 2026-10-12
 
@@ -143,3 +146,157 @@ Acceptance still pending:
 Next owner action: follow the local-outbox walkthrough for a reversible login check, then provide domain/email choices and record the installed-phone checks. Stop before M4 until owner approval. No commit, push, merge, or deployment authorized by this implementation request.
 
 Final M3 desktop checkpoint: clean npm ci succeeded from the updated lockfile; TypeScript, ESLint, all 14 mobile helper/lifecycle tests, and Android export passed again after that clean install. Local documentation links (28 checked), source whitespace, secret-pattern checks, and private outbox/environment/database/build exclusions pass. No real-device or remote CI result is inferred.
+
+## Milestone 4 — Phone lessons, media, and saved copies
+
+Owner requested the next milestone. Work is on **feat/feed-playback-cache**, based on the committed Milestone 3 code. The existing owner edit to AGENTS.md is preserved. This request authorizes Milestone 4 code; it does not close the outstanding human content review or real-email phone checks from earlier milestones.
+
+Objective: let an invited candidate choose JAMB → Biology → topic → lesson and use short lessons with a weak connection.
+
+Implemented:
+
+- Phone lists for exams, subjects, topics, and published lessons, with 20-item pages, Load more, empty lists, Retry, and Refresh. Exam names stay visible with Biology and topics.
+- Text-first cards and image descriptions, transcripts, timed video captions, file sizes, duration, and sources. Images load on request with data saver on by default. Turning it off loads visible images. Audio/video always wait for Load and Play.
+- Local-file playback using Expo Audio/Video. Playback pauses when its card leaves view, the route closes, or the app enters the background. Background playback, recording, and picture-in-picture are disabled.
+- Saved lists, lesson text, and complete media files under a shared 100 MB limit, including the index; maximum 200 entries. Items used least recently are removed first. Clear saved lessons and media is on the home screen.
+- Saved text is labelled Offline. Only a network failure can use it; HTTP rejection/error responses do not. A checked, unexpired account can restore offline. Successful sign-out, rejected sessions, and changing accounts clear saved content; requests started before clearing cannot save into the old cache.
+- A protected availability check removes withdrawn/replaced lesson versions on opening the feed, returning to the app, and reconnecting. The phone cannot know about new withdrawals while offline.
+- README admin/student walkthroughs, a [phone feed guide](feed-phone-guide.md), updated login/API/architecture notes, and learning notes in plain language. No migrations or extra exam data are needed.
+
+Desktop checks:
+
+- All 54 backend tests pass. Django system check, migration check, and Python dependency check pass.
+- Mobile type checks, lint, and helper tests pass. Expo dependency alignment and Android bundle export pass. See the final checkpoint below for the final test count after review.
+- Cache tests cover the byte limit, removal order, missing/corrupt files, unfinished downloads, clearing, account changes, and late requests. Feed tests cover publication removal, trusted pagination, captions, and network-only fallback. Login tests cover offline restore and account/credential binding.
+- npm still reports 28 advisories (10 moderate, 18 high), as recorded during dependency installation; these are unresolved. Node's module auto-detection warning is non-failing.
+
+Still required before calling Milestone 4 fully accepted:
+
+- On a physical Android phone, record text/image/audio/video behaviour, no autoplay, offscreen/background pause, matching captions, large text, slow/interrupted connections, offline reads, reconnect after a withdrawal/replacement, and clearing/sign-out. Use the [checklist](feed-phone-guide.md#record-the-phone-results).
+- Use an installed preview build for a true offline restart check; Expo Go may need the development server to start.
+- M2 human review of actual permitted teaching/media samples and M3 real email/domain/installed-app link checks remain pending.
+
+No content was auto-published. No commit, push, cloud build, deployment, quiz, like, or challenge work was performed. Stop here for owner review before Milestone 5.
+
+### Final Milestone 4 desktop checkpoint
+
+Passed: 54 backend tests, 30 mobile tests, Django system/migration/dependency checks, TypeScript, ESLint, Expo dependency alignment, and final Android export after the playback review. All 48 local links across README and docs resolve. New source files and milestone changes pass whitespace checks; the owner's existing AGENTS.md edit is excluded and preserved. Real environment files, private email messages, local database, and Android export files are not tracked. Remote CI and physical-phone results have not been run or inferred.
+
+### Follow-up: expo-video bundler error
+
+The package is present at version 57.0.5. A fresh Android export with --clear succeeded (1,301 modules), including the media imports. Added stop/restart/cache-clear steps to the phone guide. This points to stale state in the running Expo server; the owner's phone reload is still required to confirm the fix there.
+
+### Owner-requested Milestone 4 feed redesign
+
+The owner asked for a playful subject picker and swipe feed, with search. Recorded the changed flow and acceptance criteria in the approved plan addendum. Work stays on feat/feed-playback-cache; existing owner changes remain preserved.
+
+- Sign-in now leads to subject checkboxes, labelled Biology (JAMB), followed directly by a full-screen feed. Subject picks are saved per account in the phone cache; no new database tables are needed.
+- Colourful posts use large type, vertical paging, clear end/error states, and Read more for complete text and alternatives. Settings and subject changes are available from the feed. Small screens/larger text can open media in the full view.
+- Added a protected, paginated feed/search route. It filters selected subject IDs, active exams, and latest published versions. Search is bounded word matching over public teaching text; drafts and answer keys stay hidden. It does not create content or add recommendations.
+- Kept data saver, no autoplay, pause on leaving the visible post or media area, account clearing, saved-page labels, and publication rechecks. Search requests happen on submission, not each keystroke.
+- Updated README, phone/login guides, API contract, requirements, architecture, and learning log with plain steps.
+
+Verification: 57 backend tests and 34 mobile helper tests pass; Django system and migration checks, TypeScript, and ESLint pass. Android export passes; its first run alongside all other checks exceeded the command time limit, and a separate run completed successfully. New tests cover subject/exam boundaries, search, pagination, saved choices, cache isolation, and removal of withdrawn feed pages. No new packages were added by this redesign. Existing dependency advisories remain unresolved.
+
+Phone acceptance is still pending: sign-in → selection → feed, one-post swiping, subject changes, search/empty results, small-screen/larger-text access, playback pause including overlays, and slow/offline/reconnect checks. The design is intended to feel more inviting; no measured engagement gain is claimed. No sample was auto-published, and no commit, push, deployment, or later milestone was performed.
+
+## Milestone 5 — Quizzes and private progress
+
+Owner authorized the next milestone. Branch: feat/quizzes-progress, based on the existing Milestone 4 branch. Earlier human content/media review and real-email/phone acceptance remain open; this request does not establish that those checks passed.
+
+Implemented:
+
+- Separate quiz API exposes three questions and choices without keys. Submission validates the published version and all three question IDs, then scores on the server.
+- Completed attempts use an account-bound submission UUID. Identical retries return the same result; conflicting reuse returns 409. Database constraints and a transaction protect numbering and duplicate submissions; database contention returns a safe retry response.
+- Results keep original question/key/explanation and exam/subject context. New submissions for withdrawn/replaced/inactive content are rejected, while previously accepted results and identical retries remain available to their owner.
+- Quick play on the last feed card and inside Read more, score/explanation screen, repeat practice, and private progress/history under Settings. First-play percentage excludes repeated practice, including replacement versions of a stable post.
+- Choices and submission ID save before sending. At most 20 unfinished quizzes live in a separate account-bound document store with two alternating copies. Lost replies keep the same ID and fixed answers. No background submissions or offline write synchronization. Cache clearing keeps unfinished answers; sign-out/session rejection/account changes remove them.
+- Account-bound request checks prevent an old screen from sending answers under a newly signed-in account. Screens and in-memory scored results reset across account changes. Late failures from an old credential cannot clear a newer credential.
+- Added the [phone walkthrough](quiz-phone-guide.md), [API contract](api/quiz-progress.md), README steps, architecture notes, and reusable learning notes in plain language.
+
+Verification:
+
+- All 71 backend tests pass, including 14 new quiz scenarios: hidden keys, server scoring, invalid answers, safe retries/conflicts, repeat metrics, privacy, withdrawal/replacement history, inactive exams, constraints, read-only admin, and retryable database errors.
+- All 45 mobile helper tests pass, including saved-choice restart, lost reply/retry, failed storage, account isolation, parser filtering, draft limits, interrupted two-copy writes, and account-switch request binding. TypeScript and ESLint pass.
+- Learning migration applied locally; compared every editorial row before and after and all were preserved. System check, migration drift, and Python dependency checks pass.
+- Expo dependency alignment and final Android export pass. No packages added. Existing dependency advisories remain unresolved; no new audit or clean-audit claim. Node module auto-detection warnings remain non-failing.
+- Documentation links and Git whitespace checks pass. No secrets, local database, or generated export files are tracked.
+
+Still open: physical Android quiz/choice persistence, lost-reply recovery, private history after restart/account changes, large text, and withdrawal checks in the phone guide. Native file behavior has not been established by pure helper tests. Actual overlapping PostgreSQL submissions need verification before hosting; simulated database-busy tests do not prove PostgreSQL concurrency. Remote CI has not been run for these uncommitted changes.
+
+No content was published. No commit, push, deployment, likes, or challenges performed. Stop for owner review before Milestone 6.
+
+### Owner-approved entertainment-first refinement
+
+Implemented on feat/quizzes-progress, preserving the uncommitted Milestone 5 work. The owner approved random standalone posts, one content card per new publication, no carousel yet, and occasional optional in-feed dares. The approved-plan addendum supersedes earlier fixed post-to-quiz and completion-target assumptions. This is a refinement of the feed/quiz work, not implementation of Milestones 6 or 7.
+
+- Backend: one-card publication and admin limit; new sample/demo drafts use one card; seed reruns retain existing content. No schema migration or local content rewrite.
+- Feed: a new server mix for fresh first requests, stable hashed ordering, cursor pages, publication cutoff, and existing subject/search/publication controls. Offline pages retain their mix and next cursor. Late requests from an earlier refresh cannot append to a new mix.
+- Phone: ordinary posts have no quiz button; optional dare cards appear after a variable number of content items and can be swiped past or skipped explicitly. Existing solo quizzes open on acceptance. Friend challenges are honestly labelled as coming later.
+- Progress: posts tried and voluntary plays; unfinished dares can be resumed without finding the same feed position. Existing attempt records, scoring, hidden keys, saved choices, retry IDs, and account boundaries remain in place.
+- Updated README, approved plan, user/admin/drafting guides, API notes, architecture, requirements, and learning log.
+
+Verification: 75 backend tests and 48 mobile helper tests pass, with TypeScript, ESLint, system/migration/dependency checks, and final Android export. Tests include one-card publication, preservation on seed reruns, mix/cursor stability, withdrawal while paging, optional dare spacing, offline mix/cursor recovery, and unfinished-dare access. Expo dependency alignment passes; no packages added. Existing dependency advisories remain unresolved.
+
+Physical-phone acceptance remains open: varied dare placement, skip/accept, refresh/load-more, pause when scrolling onto a dare, saved dare after restart, small-screen/large-text controls, search, offline reads, and reconnect. Remote CI not run. No content auto-published, no commit/push/deployment, and no two-person challenge claim.
+
+## Milestone 6 — Likes and engagement evidence — 2026-10-13
+
+Owner authorized the next milestone. Work is isolated on feat/likes-engagement from the committed Milestone 5 code. Earlier editorial/media, real-email, and physical-phone acceptance remain open; this request authorizes code work without claiming those checks passed.
+
+Implemented:
+
+- Private like/unlike on feed posts and Read more; explicit true/false requests and a unique candidate/unit/card constraint prevent duplicates. Publication/exam/card access checks apply to reads and writes. Corrected versions retaining the card identity share likes. Feed order is unchanged.
+- Confirmed-state phone controls disable repeated taps. An uncertain reply keeps the prior confirmed value with an error and requires a GET check before another change. Offline writes are disabled, never queued. A shared account-bound auth helper protects both quizzes and engagement; in-memory state resets across accounts.
+- Daily unique post-visible, dare-shown, and dare-accepted records, using server Nigeria dates and context snapshots. Mostly-visible foreground items wait one second. Quick acceptance also ensures exposure. Skip sends no request. Failed/offline event delivery is discarded. No third-party analytics.
+- Staff-only aggregate JSON export, with explicit export permission and a bounded 1–90-day window. It excludes emails, usernames, account IDs, credentials, selected answers, and keys. Includes topic/media activity, current likes, likes among the same observed viewers, and first/practice server quiz totals. Counts are partial pilot evidence, not proof of learning.
+- Engagement migration applied locally. Compared all pre-existing editorial, learning, and account rows before/after: preserved. No content published, no sample activity or accounts created.
+- README, plain-language phone/admin walkthrough, API contract, requirements, architecture, and learning log updated.
+
+Desktop checks: 90 backend tests and 55 mobile helper tests pass; Django system/migration/dependency checks, TypeScript, ESLint, Expo dependency alignment, Android export, local documentation links, and Git whitespace checks pass. New tests cover duplicate/reversed state requests, privacy, publication boundaries, stable revisions, daily events/timezone, constraints, report permissions/fields, lost replies, and client delivery guards. No packages added. Existing dependency advisories and non-failing Node module warnings remain as previously recorded.
+
+Still open: physical-phone like/unlike, lost-reply recovery, offline/account isolation, large text/small screens, and native visibility/background timing checks in the [walkthrough](likes-and-engagement-guide.md). Actual PostgreSQL overlapping writes and report behavior need verification before hosted pilot; SQLite and simulated errors do not prove those. Remote CI has not run for these uncommitted changes.
+
+No commit, push, deployment, friend challenges, or later milestone implemented. Stop for owner review before Milestone 7.
+
+## AI-1 — Admin jobs and text — 2026-10-13
+
+Owner authorized AI-1. Branch: feat/admin-ai-text. Implemented staff-only requests for new text drafts, source snapshots, optional three questions, a daily global quota, a separate worker, and read-only job results. Confirmed responses save before atomic import; uncertain outcomes are never retried automatically. Human review and explicit publication remain required. Existing posts are not regenerated.
+
+Publication now accepts zero or exactly three questions. The feed exposes quiz_available; dares use only eligible posts already loaded. Older saved posts without that flag remain readable but do not supply dares.
+
+Verification: 110 backend tests and 57 mobile helper tests pass. Django system and migration-drift checks, pip dependency checks, TypeScript, and ESLint pass. The generation migration was applied locally and all pre-existing model rows were preserved. OpenAI SDK 3.29.0 is pinned with its dependencies; its Responses method signature was checked locally without network calls.
+
+Live generation is pending: the local backend lacks an API key and text model. No paid calls, publication, commit, push, or deployment occurred. Follow [AI setup](ai-generation-setup.md) for a controlled request and human/phone checks. The worker lock coordinates one local worker; actual PostgreSQL concurrency and multi-host operation are not established. Remote CI is pending. Stop before AI-2; image, meme, and video generation require separate approval.
+
+Final AI-1 checks: Android export and online Expo dependency alignment pass. All 24 README/docs Markdown files have resolving local links. Git whitespace checks pass; private environment files, the database, worker lock, and generated Android export are ignored. Existing non-failing Node module warnings remain.
+
+### Owner-reported Expo Go test — 2026-10-14
+
+The owner confirmed that mobile use was tested successfully in Expo Go. This records a successful phone-use check; no individual test cases or device details were supplied. It does not establish that every offline, recovery, accessibility, or account-switch scenario passed. Live AI generation and human content review still need separate confirmation; remote CI and PostgreSQL checks remain open.
+
+### Admin field guidance — 2026-10-14
+
+Added plain-language help to all content generation request fields, including Biology examples, source instructions, optional questions, saved status, and result details. The create form inherits model help so create and saved-request pages use the same explanations. Added and applied a help-text-only migration; request behavior and stored content are unchanged. Django checks, migration-drift checks, and all 20 generation tests pass. Verified that every visible generation form field and every request model field has help text.
+
+### Admin model selection — 2026-10-14
+
+Added a text-model dropdown using the backend AI_TEXT_MODELS list, with AI_TEXT_MODEL as the default and single-choice fallback. Requests save the chosen model; repeated submissions include that choice in their duplicate check. The server rejects unlisted models. Future media stages remain disabled. All 21 generation tests, Django checks, and migration-drift checks pass. No provider calls were made.
+
+### Random feed across subjects — 2026-10-14
+
+Confirmed the existing server shuffles the combined selected-subject content pool, and mobile preserves that order. Extended the feed regression test to cover two subjects, varied mixes, stable repeated requests, and orders that are not grouped by subject. All 25 account/API tests pass. Updated the phone guide with refresh and offline behavior. No feed algorithm or subject-selection behavior changed.
+
+### Additional JAMB sample drafts — 2026-10-14
+
+Owner requested five Government and five Chemistry posts. Added and ran seed_jamb_subjects, creating ten separate learning units with one-card version-1 drafts and no questions or media. Verified five per subject, all review flags unset, all prior model rows preserved, and a second run changed no rows. Django and migration-drift checks pass. No content was published or paid API called. Human fact-checking, checked source references, and publication remain required. See [sample guide](content/jamb-subject-samples.md). This sample request does not change the invited Biology pilot scope.
+
+### Automatic admin author — 2026-10-14
+
+New learning units created through admin record the logged-in staff member as author. The author field is read-only; posted author values cannot override it. Editing preserves existing authors, including empty sample authors. Request-level creation and edit checks pass with all 35 editorial tests; Django system, migration-drift, and whitespace checks pass. No migration or existing-record rewrite.
+
+### Public landing page — 2026-10-14
+
+Owner requested a web introduction and an inactive Play Store download link. Added a public Django template at /, describing subject choices, random posts, optional solo dares, likes/search, review, and data saver. Two native disabled buttons show Google Play Coming soon. Responsive CSS, skip navigation, reduced-motion handling, and an explicitly illustrative phone preview are included, without external asset requests.
+
+Verified unauthenticated HTTP 200, both disabled download controls, resolving anchor targets, and unique IDs using the rendered response. Both health tests, Django system/migration checks, and whitespace checks pass. Browser visual and real-phone layout checks remain pending. No deployment, Play Store link activation, database changes, dependencies, or app-feature changes.

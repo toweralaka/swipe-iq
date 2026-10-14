@@ -18,7 +18,7 @@ The API includes login-link request/exchange, logout, content, attempts, progres
 
 Published content is versioned and immutable; attempts/challenges reference original versions; feed identities preserve likes. Server hides drafts and answer keys. Android uses SecureStore for revocable sessions and verified HTTPS App Links for pilot login.
 
-Text precedes optional media; no autoplay; transcripts/captions support learning without playback. Cache is bounded at 100 MB; account-specific cached data clears on logout. Offline writes and downloads are deferred.
+Text precedes optional media; no autoplay; transcripts/captions support learning without playback. Cache is bounded at 100 MB; account-specific cached data clears on logout. Offline writes and a permanent download library are deferred; completed media requests can be kept in the bounded cache.
 
 ## Deployment gate
 
@@ -28,7 +28,7 @@ Before Milestone 8: verify PostgreSQL, HTTPS, persistent storage, email delivery
 
 Content follows Examination → Subject → Topic → Learning unit version → Cards/questions. A subject name is unique within its examination: JAMB Biology and future SSCE Biology are separate subjects with their own topics and syllabus mappings. Store the examination once on Subject; versions inherit it through their topic, avoiding contradictory examination fields.
 
-Examination has a stable code, display name, and active flag. Migration 0002 assigns existing subjects to JAMB without replacing lessons or review history. JAMB is active; newly created examinations default to inactive. The M3 student API filters active examinations and published content on the server. The phone selector remains M4.
+Examination has a stable code, display name, and active flag. Migration 0002 assigns existing subjects to JAMB without replacing lessons or review history. JAMB is active; newly created examinations default to inactive. The M3 student API filters active examinations and published content on the server. Milestone 4 adds the phone selector.
 
 Admin shows examination-qualified subjects/topics and an examination column/filter for lesson versions. Subjects and topics used by published or withdrawn lessons cannot be moved to another examination through model saves. Create separate curriculum records instead.
 
@@ -38,4 +38,66 @@ The accounts app owns invitations, hashed single-use tokens, revocable hashed se
 
 Expo Router supplies home/login/connection routes. SecureStore holds the credential; account identity is verified against the server on restore. Reading an incoming fragment link only presents confirmation. Backend /login is a static fallback; configured Android association data is served at /.well-known/assetlinks.json. No domain, email provider, signing identity, cloud build, or physical Android acceptance has been assumed.
 
-See [API contract](api/student-access.md) and [authentication setup](authentication-setup.md). Local streaming establishes access control; media playback, caching, CDN delivery, and quiz routes remain later increments.
+See [API contract](api/student-access.md) and [authentication setup](authentication-setup.md). The media endpoint checks access. Milestone 4 adds phone playback and saved copies; a separate media delivery host and quizzes remain later work.
+
+## Milestone 4 phone feed and saved copies
+
+The phone uses Expo Router screens for exam → subject → topic → lesson. The feed repository is a small layer between screens and the backend: it reads the server first, checks response fields, and uses saved text only when a network request fails. A 401, 404, or server error does not unlock an old saved response.
+
+Media files are small enough to download in full before playback. This is easier to reason about than live streaming for the MVP, and makes completed files usable offline. The trade-off is that users must wait for the whole clip before pressing Play. File limits remain 250 KB for images, 1 MB for audio, and 5 MB for video. Auth headers stay on the configured backend; redirected file requests are rejected.
+
+Expo Audio and Video play local files. Playback waits for Play and pauses when the card leaves view, the route closes, or the app goes into the background. Video captions use the supplied VTT cue times. Images load on request by default; data saver off allows visible images to load automatically. Background playback, recording, and picture-in-picture are disabled.
+
+A file cache keeps text, lists, and completed media under 100 MB, including its index. It removes items used least recently and allows at most 200 entries. It belongs to one backend/account at a time. A generation number rejects late downloads after clearing or changing accounts, so a request started before logout cannot repopulate the old cache. Android may still remove cache files to free space.
+
+SecureStore holds the last server-checked account and session expiry, bound to its credential. This supports offline reopening after a successful online login without extending the session. Saved teaching content is in the normal app cache, not an encrypted store. On opening the feed, returning to the app, and reconnecting, an authenticated availability check removes saved versions no longer published. While disconnected, the app cannot know about new withdrawals and labels saved text Offline.
+
+The device adapter uses Expo FileSystem. Tests use an in-memory disk with the same small interface, so storage limits, corruption recovery, and account isolation can be checked without pretending a desktop test proves native playback. See [phone checks](feed-phone-guide.md).
+
+## Owner-requested swipe flow
+
+The main phone route is now sign-in → subject checkboxes → swipe feed. Subjects include their exam label. The old topic/detail routes still work as direct routes, but the main flow no longer sends candidates through those menus.
+
+GET feed/ filters by selected subject IDs and an optional short search. It returns safe unit metadata and cards in small pages; the phone displays one card per screen. Search uses database word matching over published content, not an external AI service. This avoids another provider and keeps unpublished material out of search.
+
+Subject picks live in the same account's bounded phone cache. Feed pages also store their version IDs through the existing unit-cache records, so reconnect checks can remove unavailable versions and their old feed pages. Clearing content clears picks too; cross-device preferences remain future work.
+
+The screen uses a paged FlatList to keep a few posts mounted at a time. Read more supplies complete text and alternatives in a scrollable view. Small screens and larger text can open media there; only the visible media area can play. Data saver and publication rules remain the same.
+
+API references checked: [Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/), [React Native FlatList](https://reactnative.dev/docs/flatlist), and [Django queries](https://docs.djangoproject.com/en/5.2/topics/db/queries/).
+
+## Milestone 5: quizzes and private progress
+
+The learning Django app stores completed quiz attempts. The server checks each submitted question against a published version and calculates the score. A submission UUID makes a retry return the same result instead of creating another play. Each attempt keeps its original question text, explanations, and subject/exam context. Replacement versions share a stable unit, so repeat practice cannot raise first-play scores.
+
+The phone has Quick play, result, and progress routes. Unfinished choices live in small account-bound document files, separate from the viewed-content cache. Two alternating copies keep the last complete save if a write is interrupted. The phone saves choices and the submission ID before sending, and never submits automatically in the background. Sign-out and account changes clear unfinished answers. Completed history stays on the server. Keys are only displayed after submission and are not stored in the feed cache.
+
+See the [API contract](api/quiz-progress.md) and [phone guide](quiz-phone-guide.md). SQLite is still for local development; PostgreSQL concurrency checks remain required before hosting.
+
+## Random posts and optional in-feed dares
+
+New publications contain one card. The relationship still supports multiple records for preserved history and a future carousel, but the publishing service and admin enforce today's limit. New sample drafts combine their standalone text into one card; seed reruns preserve existing drafts and publications.
+
+The feed API generates a mix token and sorts published versions by a hash of that token and version ID. This gives a shuffled order without running a fresh random sort on every page. Cursor paging follows the last item's position, and a publication-time cutoff keeps later content out until refresh. Subject/exam and search filters still apply. This is a simple mix, not personal recommendations.
+
+The phone inserts optional dare entries using the mix token. Their positions remain stable when another page arrives. The first appears after 3–7 content items, later ones after 5–9. Skipping sends no request; accepting opens the current solo quiz. Friend challenges are visibly deferred. Post-ending quiz buttons are removed. Progress lists local unfinished dares so saved choices remain reachable without finding an old random feed position.
+
+The first subject/search page is cached at its usual path with its returned mix and next cursor; later cursor pages use their exact paths. Offline reopening therefore reuses the saved mix. Refresh clears displayed entries before fetching a new mix; requests started under an older feed generation cannot append into it. Existing cached pages from before the format change need a connected refresh. Native swipe, media pause, large-text, and recovery checks remain in the phone guides.
+
+## Milestone 6: private likes and engagement reports
+
+The engagement app stores one like state per candidate, stable unit, and card identity. POST sets true/false explicitly; a database constraint prevents duplicate rows. Replacements retaining the identity share that state. Reads and writes check the current publication and examination. Candidate APIs return only that account's boolean, and likes do not influence the random mix.
+
+The phone displays a server-confirmed state. Requests from quizzes and engagement now share the same account-bound authentication helper. On an uncertain like reply, a GET checks what was saved before another change is allowed. The in-memory like-controller cache is bounded to 200 entries and resets on account changes. Like state is not added to offline content files or a write queue.
+
+Engagement events record connected views, dare exposures, and accepted dares. A database constraint permits each signal once per candidate/stable card/Nigeria day. The phone waits one second for a mostly-visible foreground item, except a quick dare acceptance also records its exposure. The delivery guard is bounded to 1,000 in-memory keys; the server remains authoritative. Skipping remains request-free. No third-party analytics or background synchronization is added.
+
+A staff-only admin download returns aggregate JSON for 1–90 Nigeria calendar days. It includes received daily/unique activity by topic/media, current active likes, current likes among observed viewers in the window, and server-recorded first/practice quiz totals. No candidate emails, usernames, account IDs, credentials, selected answers, or keys are exported. Report data can undercount offline/failed events and does not establish learning gains. See the [API contract](api/engagement.md) and [phone/admin guide](likes-and-engagement-guide.md).
+
+## AI-1 generation path
+
+The generation app stores staff requests and a daily quota in the database. Admin queues a request; a separate management-command worker makes the OpenAI call. This avoids keeping an admin page open during generation. A local file lock allows one worker on the configured machine, without adding Redis or Celery. It is not a distributed-worker design.
+
+Requests use signed form IDs and saved fingerprints to avoid duplicate jobs. The provider adapter disables automatic retries. Confirmed output saves before a transaction creates the new draft, so a restart can finish an import without another paid call. Uncertain paid outcomes need human checking. Sources, output, and provider metadata stay in staff-only database records; no generated media storage is introduced in AI-1.
+
+Server settings hold the key, required text model, quota, and timeout. Structured JSON is validated for one text card and zero or three questions; it cannot establish scientific truth. Publication keeps the review gates. The student API sends only quiz_available, never generation metadata or answer keys. Saved posts lacking the new flag remain readable and do not supply dares.
