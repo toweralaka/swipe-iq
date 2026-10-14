@@ -1,0 +1,92 @@
+[
+  {
+    "key": "sample-jamb-government-1",
+    "subject": "Government",
+    "topic": "Separation of powers",
+    "title": "Three chefs, one national kitchen",
+    "objective": "Distinguish the functions of the legislature, executive, and judiciary.",
+    "text": "Imagine one chef writing the menu, cooking everything, and judging complaints: every burnt meal becomes 'perfect'! Separation of powers assigns law-making to the legislature, implementation to the executive, and interpretation of law to the judiciary. Different jobs help limit abuse; the branches still interact.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Government.pdf"
+  },
+  {
+    "key": "sample-jamb-government-2",
+    "subject": "Government",
+    "topic": "Checks and balances",
+    "title": "No unlimited admin privileges",
+    "objective": "Explain how checks and balances limit government power.",
+    "text": "Your group-chat admin says, 'I own the rules, the votes, and the appeals.' Everybody suddenly misses ordinary WhatsApp! Checks and balances give government branches ways to restrain one another, such as legislative oversight of the executive. Separation divides jobs; checks help keep each branch accountable.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Government.pdf"
+  },
+  {
+    "key": "sample-jamb-government-3",
+    "subject": "Government",
+    "topic": "Constitution",
+    "title": "The country's group-chat rules",
+    "objective": "Explain the role of a constitution.",
+    "text": "Before the group admin invents a midnight 'send me airtime' tax, check the rules! A constitution sets the basic framework of government, its powers and limits, and people's rights. Ordinary government decisions must respect it. This analogy helps with rules; a country is far more complex than a chat.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Government.pdf"
+  },
+  {
+    "key": "sample-jamb-government-4",
+    "subject": "Government",
+    "topic": "Rule of law",
+    "title": "VIP slippers do not cancel the rules",
+    "objective": "Explain the principle of equality before the law.",
+    "text": "Someone enters a queue wearing VIP slippers: 'My uncle knows everybody!' The slippers may be expensive; the law should not have a VIP lane. Rule of law means power is exercised under law, with equality before the law and fair legal procedures. Popularity is not legal immunity.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Government.pdf"
+  },
+  {
+    "key": "sample-jamb-government-5",
+    "subject": "Government",
+    "topic": "Structures of Governance",
+    "title": "Federalism: shared kitchen, separate pots",
+    "objective": "Distinguish federal and unitary government structures.",
+    "text": "Flatmates share a kitchen but have responsibilities over their own pots. Federalism similarly divides powers between a central government and constituent governments under a constitution. In a unitary system, ultimate governmental authority rests centrally. The kitchen is a memory aid, not a claim that states are independent countries.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Government.pdf"
+  },
+  {
+    "key": "sample-jamb-chemistry-1",
+    "subject": "Chemistry",
+    "topic": "Separation of mixtures and purification of chemical substances",
+    "title": "The filter that cannot catch salt",
+    "objective": "Choose filtration for an insoluble solid-liquid mixture.",
+    "text": "A filter sees dissolved salt and says, 'You are not on my guest list!' Salt still walks through with the water. Filtration separates an insoluble solid, like sand, from a liquid. It does not normally remove dissolved salt; evaporation can recover salt from saltwater. Different mixtures need different methods.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Chemistry.pdf"
+  },
+  {
+    "key": "sample-jamb-chemistry-2",
+    "subject": "Chemistry",
+    "topic": "Chemical combination",
+    "title": "Atoms attend: nobody disappears",
+    "objective": "Explain conservation of atoms when balancing equations.",
+    "text": "A chemical equation is attendance, not a magician's show: atoms cannot vanish because the teacher looks away! In an ordinary chemical reaction, atoms rearrange. Balance equations by changing coefficients, not subscripts. Example: 2H2 + O2 -> 2H2O. Both sides contain four hydrogen atoms and two oxygen atoms.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Chemistry.pdf"
+  },
+  {
+    "key": "sample-jamb-chemistry-3",
+    "subject": "Chemistry",
+    "topic": "Chemical combination",
+    "title": "The mole: a very dramatic dozen",
+    "objective": "Explain the mole as an amount of substance.",
+    "text": "A dozen says, 'I count twelve.' A mole replies, 'Cute. I count about 6.02 x 10^23 specified particles.' A mole is a counting unit for atoms, molecules, or other stated entities. One mole of water molecules and one mole of carbon atoms have the same entity count, not the same mass.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Chemistry.pdf"
+  },
+  {
+    "key": "sample-jamb-chemistry-4",
+    "subject": "Chemistry",
+    "topic": "Kinetic theory of matter and Gas Laws",
+    "title": "Gas particles hate personal space rules",
+    "objective": "Explain pressure using gas-particle collisions.",
+    "text": "Gas particles do not politely queue: they move randomly and collide with container walls. Those collisions produce pressure. For a fixed amount of gas at constant temperature, reducing volume increases pressure: Boyle's law. The particles do not grow bigger; they have less room and collide with walls more often.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Chemistry.pdf"
+  },
+  {
+    "key": "sample-jamb-chemistry-5",
+    "subject": "Chemistry",
+    "topic": "Separation of mixtures and purification of chemical substances",
+    "title": "Ice: still water, different outfit",
+    "objective": "Distinguish physical from chemical changes.",
+    "text": "Ice melts and announces, 'New look, who this?' Still H2O! A physical change alters state or form without making a new substance. A chemical change forms different substances, as when iron rusts. Do not use 'easy to reverse' as the only test; ask whether the substance's chemical identity changed.",
+    "syllabus_reference": "https://ibass.jamb.gov.ng/assets/uploads/Chemistry.pdf"
+  }
+]

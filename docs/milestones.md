@@ -286,3 +286,11 @@ Added a text-model dropdown using the backend AI_TEXT_MODELS list, with AI_TEXT_
 ### Random feed across subjects — 2026-10-14
 
 Confirmed the existing server shuffles the combined selected-subject content pool, and mobile preserves that order. Extended the feed regression test to cover two subjects, varied mixes, stable repeated requests, and orders that are not grouped by subject. All 25 account/API tests pass. Updated the phone guide with refresh and offline behavior. No feed algorithm or subject-selection behavior changed.
+
+### Additional JAMB sample drafts — 2026-10-14
+
+Owner requested five Government and five Chemistry posts. Added and ran seed_jamb_subjects, creating ten separate learning units with one-card version-1 drafts and no questions or media. Verified five per subject, all review flags unset, all prior model rows preserved, and a second run changed no rows. Django and migration-drift checks pass. No content was published or paid API called. Human fact-checking, checked source references, and publication remain required. See [sample guide](content/jamb-subject-samples.md). This sample request does not change the invited Biology pilot scope.
+
+### Automatic admin author — 2026-10-14
+
+New learning units created through admin record the logged-in staff member as author. The author field is read-only; posted author values cannot override it. Editing preserves existing authors, including empty sample authors. Request-level creation and edit checks pass with all 35 editorial tests; Django system, migration-drift, and whitespace checks pass. No migration or existing-record rewrite.

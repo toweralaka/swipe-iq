@@ -107,3 +107,7 @@ Open **Engagement → Engagement events** in the staff admin, then click **Downl
 Open **Generation → Content generation requests → Add**. Choose a topic, enter the desired idea and checked syllabus/teaching excerpts, and optionally tick **Generate three quiz questions**. Start the separate worker to process the request, then open the draft, review it, and publish explicitly. Follow [AI generation setup](docs/ai-generation-setup.md) for the backend API key/model, daily limit, permissions, worker commands, and failure recovery.
 
 AI-1 generates new text posts only. Images, memes, and videos are later stages. Zero-question posts can be published and liked, but cannot supply dares. A provider account/model configuration and controlled live check are still needed; mocked tests do not establish live generation quality.
+
+### More sample drafts
+
+To add five JAMB Government and five JAMB Chemistry posts, run `.\.venv\Scripts\python.exe manage.py seed_jamb_subjects` from backend. Each post has one text card and no quiz. Review and publish them in admin before users can see them. See [sample steps](docs/content/jamb-subject-samples.md).
