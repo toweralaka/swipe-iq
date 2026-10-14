@@ -1,6 +1,6 @@
 # Swipe-IQ
 
-Swipe-IQ is a fun feed for Nigerian JAMB Biology candidates. Funny posts weave Biology into a relaxing scroll, using text, images, audio, or video. AI drafts the content; a human checks it before an admin publishes it.
+Swipe-IQ is a fun feed for Nigerian JAMB Biology candidates. Funny posts weave Biology into a relaxing scroll, using text, images, audio, or video. Staff can now request AI text drafts from admin or enter content manually. A human checks each draft before an admin publishes it.
 
 The phone app now lets invited users sign in, tick subjects such as Biology (JAMB), and swipe through a colourful full-screen feed. Search finds posts within the chosen subjects. Data saver starts on. Viewed text and loaded media are saved on the phone, up to 100 MB. Posts appear in a random mix, with no lesson sequence. Occasional in-feed dares offer an optional three-question solo play. Swipe past them whenever you like. Scores and explanations are private. Private likes now let users show interest. Staff can download an aggregate pilot report. Friend challenges will come in a later milestone. New posts have one content card; carousels are future work.
 
@@ -13,6 +13,7 @@ The code has desktop checks. Real email links in an installed Android app and th
 - [Use and test the phone feed](docs/feed-phone-guide.md)
 - [Play quizzes and check progress](docs/quiz-phone-guide.md)
 - [Use likes and download the pilot report](docs/likes-and-engagement-guide.md)
+- [Generate an AI text draft in admin](docs/ai-generation-setup.md)
 - [Review and publish content](docs/content/editorial-workflow.md)
 - [Approved plan](docs/implementation-plan.md), [architecture](docs/architecture.md), and [student API](docs/api/student-access.md)
 
@@ -50,7 +51,7 @@ These commands use PowerShell. Start inside the swipe-iq folder after completing
    ~~~
 
 5. Open http://127.0.0.1:8000/admin/ on the computer. Sign in with your staff account. Under **Editorial → Learning unit versions**, open a draft.
-6. Check that the topic belongs to **JAMB Biology**. Read the cards and questions, fix mistakes, and enter the teaching reference you checked. Each new post needs exactly one content card and three questions for optional dares. Each question needs four choices and an explanation. The feed shows the post. Its questions can appear in a separate optional dare.
+6. Check that the topic belongs to **JAMB Biology**. Read the cards and questions, fix mistakes, and enter the teaching reference you checked. Each new post needs exactly one content card. Questions are optional: leave them empty or add exactly three for dares. Each question needs four choices and an explanation. The feed shows the post. Its questions can appear in a separate optional dare.
 7. For media, add a file under **Media assets** and attach it to a card. Add the description, transcript, captions, source, and file details required for that format. Play or view it before confirming its details. See [media preparation](docs/content/media-preparation.md) for the limits.
 8. Complete the six review checks: accuracy, syllabus, humour, accessibility, rights, and references. Add your review notes and save. Confirm only checks a human has actually done.
 9. Return to the lesson list, tick the reviewed draft, choose **Publish selected reviewed drafts**, and click **Go**. Your account needs permission to publish; a local superuser has it.
@@ -68,7 +69,7 @@ To make a subject appear:
 1. Under **Editorial → Examinations**, check that its examination is active.
 2. Under **Subjects**, check that the subject belongs to that examination.
 3. Under **Topics**, add a topic belonging to the subject.
-4. Create a learning unit and draft version using that topic. Add one content card and three questions, then complete the human review described above.
+4. Create a learning unit and draft version using that topic. Add one content card and either no questions or exactly three, then complete the human review described above.
 5. Run **Publish selected reviewed drafts** and confirm the status is **Published**. Drafts and withdrawn versions do not qualify. A subject disappears if it has no remaining available published content.
 6. While the phone is connected, open **Settings → Change my subjects** to reload the list. If it is already open, leave it and reopen it. **Offline · showing saved subjects** means the list may be out of date.
 
@@ -100,3 +101,9 @@ If no subjects or posts appear, ask the admin to check publication and the exam'
 ## Admin: see interest and activity
 
 Open **Engagement → Engagement events** in the staff admin, then click **Download 7-day aggregate report**. A superuser has access; other staff need view-event and export-report permissions. The report includes grouped views, likes, optional dare choices, and quiz totals without candidate emails or account IDs. See the [report guide](docs/likes-and-engagement-guide.md) for steps and how to read the numbers. Failed or offline events are not uploaded later, so these are partial pilot counts, not proof of learning.
+
+## Admin: generate a text draft
+
+Open **Generation → Content generation requests → Add**. Choose a topic, enter the desired idea and checked syllabus/teaching excerpts, and optionally tick **Generate three quiz questions**. Start the separate worker to process the request, then open the draft, review it, and publish explicitly. Follow [AI generation setup](docs/ai-generation-setup.md) for the backend API key/model, daily limit, permissions, worker commands, and failure recovery.
+
+AI-1 generates new text posts only. Images, memes, and videos are later stages. Zero-question posts can be published and liked, but cannot supply dares. A provider account/model configuration and controlled live check are still needed; mocked tests do not establish live generation quality.

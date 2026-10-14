@@ -45,3 +45,7 @@ The phone keeps unfinished choices in a separate account-bound document store, a
 ## Entertainment-first entry flow
 
 Quiz endpoints and server scoring are unchanged. The phone now enters quizzes through optional in-feed dare cards, not a button on every post. Skipping creates no attempt. Unfinished answers are reachable under Settings → My progress. The visible label is posts tried; completed_units remains the existing API field counting stable posts with an accepted quiz. No other user or challenge is created by accepting a current solo dare; two-person challenges remain Milestone 7.
+
+## Question-free posts
+
+A published post may now have zero questions. Only quiz_available=true posts can supply dares or new quiz requests/submissions. Quiz GET and a validly shaped new submission for a question-free version return 404. Existing accepted results and identical retries remain available under the original history rules. Generation never exposes keys to the feed.

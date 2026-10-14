@@ -1,0 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<p>Choose a topic to identify the subject and examination. Supply the desired idea and checked sources. The worker will create a new draft; it will not publish it.</p>
+<p>Only text generation is available. Images, memes and videos are later stages. Keep personal candidate information out of all inputs.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<input type="submit" value="Generate draft"></form>
+<p>One new post per request. The server checks the daily job limit. Repeated submissions of this same form refer to the same request.</p>
+{% endblock %}

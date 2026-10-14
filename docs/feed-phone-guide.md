@@ -154,3 +154,7 @@ Accept a purple in-feed dare with **I’m game ✦**, or skip it and keep scroll
 Tap **♡ Like** on a post or in Read more. Wait for **♥ Liked** before treating it as saved; tap it to unlike. Errors offer **Retry like check**, which reads what the server saved. Offline posts cannot change likes, and reconnecting never uploads an old tap automatically. Like state belongs to your account and does not affect random ordering.
 
 The pilot counts connected, mostly-visible posts and optional dare choices once per user/post/day. These are not exact reading totals. Follow the [likes and report walkthrough](likes-and-engagement-guide.md) for phone checks and staff export steps.
+
+## Posts without a quiz
+
+A published post can have no questions. It still appears in the feed and subject list. Only posts with three reviewed questions can supply a dare. Dares remain optional; their placement varies. Saved posts from an older app version may stay readable without being used for dares until refreshed.

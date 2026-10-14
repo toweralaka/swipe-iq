@@ -4,21 +4,26 @@ from django.utils import timezone
 from django.db.models import CharField, Value
 from django.db.models.functions import MD5, Cast, Concat
 import mimetypes
-from django.db.models import OuterRef, Subquery, Q
+from django.db.models import OuterRef, Subquery, Q, Count, Exists
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, serializers
 from rest_framework.pagination import PageNumberPagination, CursorPagination
 from rest_framework.response import Response
 from accounts.views import StudentView
-from .models import Card, Examination, LearningUnitVersion, MediaAsset, Subject, Topic
+from .models import Card, Examination, LearningUnitVersion, MediaAsset, Subject, Topic, Question
 
 
 def available_versions():
     latest = LearningUnitVersion.objects.filter(unit_id=OuterRef("unit_id"), status="published").order_by("-number").values("pk")[:1]
-    return LearningUnitVersion.objects.filter(
+    complete_quiz = Question.objects.filter(version_id=OuterRef("pk")).values("version_id").annotate(total=Count("pk")).filter(total=3)
+    return LearningUnitVersion.objects.annotate(quiz_available=Exists(complete_quiz)).filter(
         status="published", topic__subject__examination__is_active=True,
         pk=Subquery(latest)).select_related("topic__subject__examination").order_by("pk")
+
+
+def available_quiz_versions():
+    return available_versions().filter(quiz_available=True)
 
 
 class ExaminationSerializer(serializers.ModelSerializer):
@@ -60,9 +65,10 @@ class CardSerializer(serializers.ModelSerializer):
 class UnitSerializer(serializers.ModelSerializer):
     topic = TopicSerializer(read_only=True)
     unit_key = serializers.CharField(source="unit.key", read_only=True)
+    quiz_available = serializers.BooleanField(read_only=True)
     class Meta:
         model = LearningUnitVersion
-        fields = ["id", "unit_key", "number", "title", "objective", "topic"]
+        fields = ["id", "unit_key", "number", "title", "objective", "topic", "quiz_available"]
 
 
 class UnitDetailSerializer(UnitSerializer):

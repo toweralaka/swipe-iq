@@ -92,3 +92,7 @@ After applying migrations, follow [editorial workflow](content/editorial-workflo
 ## Milestone 3: invited email login
 
 Follow [authentication setup](authentication-setup.md) for invitation administration, private local email messages, development login, domain/SMTP settings, installed Android builds, and real-device acceptance. Mobile navigation now uses Expo Router; start Expo Go explicitly with npm.cmd start -- --go, or an installed development build with npm.cmd start -- --dev-client. The student API contract is in [student access](api/student-access.md).
+
+## Optional AI-1 text worker
+
+AI text drafting runs through a separate backend worker, not the phone or Django web server. Follow [AI generation setup](ai-generation-setup.md) to install the pinned backend dependencies, migrate, configure private credentials/model/quota, and run a controlled check. Do not start a paid-provider worker as part of ordinary phone setup unless generation has been configured intentionally.

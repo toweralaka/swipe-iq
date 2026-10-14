@@ -3,7 +3,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import APIException, ValidationError
-from editorial.student_api import available_versions
+from editorial.student_api import available_quiz_versions
 from .models import QuizAttempt
 
 
@@ -22,7 +22,7 @@ def submit_attempt(user, version_id, submission_id, answers):
         if existing.version_id != version_id or existing.answers != normalized:
             raise SubmissionConflict()
         return existing, False
-    version = get_object_or_404(available_versions().select_for_update(), pk=version_id)
+    version = get_object_or_404(available_quiz_versions().select_for_update(), pk=version_id)
     questions = list(version.questions.all())
     expected = {question.pk for question in questions}
     if len(questions) != 3 or len(normalized) != 3 or {a["question_id"] for a in normalized} != expected:
